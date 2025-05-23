@@ -1,0 +1,465 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Waste Analytics Platform</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="bg-gray-50">
+  <div class="dashboard">
+    <!-- Header -->
+    <header>
+      <div class="logo">E-Waste Analytics</div>
+      <div class="navbar">
+        <a href="" class="active">Dashboard</a>
+        <a href="{% url 'analyticsReport:reports' %}">Reports</a>
+        <a href="{% url 'ewaste_management:dashboard' %}" class="admin-button">Admin Dashboard</a>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <!-- Controls Panel -->
+      <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex justify-between items-center">
+        <div class="flex space-x-4">
+          <select id="time-period" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="quarter">Last Quarter</option>
+            <option value="year">Last Year</option>
+            <option value="all">All Time</option>
+          </select> 
+          <span class="text-sm text-gray-500 italic flex justify-between items-center"> </span>
+        </div>
+        <div>
+          <button id="update-insights-btn" class="flex items-center px-3 py-2 bg-green-800 text-white rounded-md text-sm">
+            <svg class="mr-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <h3 class="text-gray-600 text-sm font-medium mb-1">Total E-Waste Collected</h3>
+          <div id="total-waste" class="text-2xl font-bold text-green-800">0 kg</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <h3 class="text-gray-600 text-sm font-medium mb-1">Active Universities</h3>
+          <div id="university-count" class="text-2xl font-bold text-green-800">0</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <h3 class="text-gray-600 text-sm font-medium mb-1">User Participation</h3>
+          <div id="user-count" class="text-2xl font-bold text-green-800">0</div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <h3 class="text-gray-600 text-sm font-medium mb-1">Total Rewards Redeemed</h3>
+          <div id="reward-count" class="text-2xl font-bold text-green-800">0</div>
+        </div>
+      </div>
+
+      <!-- Tabbed Navigation -->
+      <div class="flex space-x-4 border-b border-gray-200 mb-6">
+        <a href="#" class="tab-link px-4 py-2 text-base font-medium text-green-800 border-b-2 border-green-800" data-tab="overview">Overview</a>
+        <a href="#" class="tab-link px-4 py-2 text-base font-medium text-gray-500" data-tab="advanced">Advanced Analytics</a>
+        <a href="#" class="tab-link px-4 py-2 text-base font-medium text-gray-500" data-tab="university">University Comparison</a>
+        <a href="#" class="tab-link px-4 py-2 text-base font-medium text-gray-500" data-tab="components">Component Processing</a>
+      </div>
+
+      <!-- Tab Contents -->
+      <div id="tab-contents">
+        <!-- Overview Tab (Default) -->
+        <div id="overview-tab" class="tab-content">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Enhanced E-Waste Collection Analytics -->
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium">E-Waste Collection Analytics</h2>
+                <div class="flex space-x-2">
+                  <select id="device-type-filter" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                    <option value="all">All Devices</option>
+                    <option value="computers">Computers</option>
+                    <option value="smartphones">Smartphones</option>
+                    <option value="peripherals">Peripherals</option>
+                    <option value="monitors">Monitors</option>
+                    <option value="printers">Printers</option>
+                  </select>
+                  <select id="view-filter" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                  </select>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="collection-trends-chart"></canvas>
+              </div>
+              <div class="mt-4 grid grid-cols-4 gap-3">
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="text-sm text-gray-600">Top Device Type</div>
+                  <div class="text-lg font-bold text-green-800" id="top-device-type">Computers</div>
+                  <div class="text-xs text-gray-500" id="top-device-percentage">32% of total</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="text-sm text-gray-600">Collection Efficiency</div>
+                  <div class="text-lg font-bold text-green-800" id="collection-efficiency">87%</div>
+                  <div class="text-xs text-gray-500">vs target</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="text-sm text-gray-600">Monthly Growth</div>
+                  <div class="text-lg font-bold text-green-800" id="monthly-growth">+8.2%</div>
+                  <div class="text-xs text-gray-500">vs last month</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="text-sm text-gray-600">Collection Method</div>
+                  <div class="text-lg font-bold text-green-800" id="top-collection-method">Scheduled</div>
+                  <div class="text-xs text-gray-500" id="top-method-percentage">75% of pickups</div>
+                </div>
+              </div>
+            </div>
+
+             <!-- Campus Expert Features (replacing User Participation) -->
+             <div class="bg-white p-4 rounded-lg shadow-sm">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium">Campus Expert Activity</h2>
+                <select id="campus-filter" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                  <option value="all">All Universities</option>
+                  <option value="publications">Publications</option>
+                  <option value="events">Events</option>
+                </select>
+              </div>
+              <div class="chart-container">
+                <canvas id="campus-expert-chart"></canvas>
+              </div>
+              <div class="mt-3 grid grid-cols-3 gap-3">
+                <div class="bg-green-100 p-3 rounded-lg text-center">
+                  <div class="text-sm text-gray-600">Active Experts</div>
+                  <div class="text-xl font-bold text-green-800" id="active-experts">0</div>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg text-center">
+                  <div class="text-sm text-gray-600">Publications</div>
+                  <div class="text-xl font-bold text-blue-800" id="expert-publications">0</div>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-lg text-center">
+                  <div class="text-sm text-gray-600">E-Waste Events</div>
+                  <div class="text-xl font-bold text-orange-700" id="expert-events">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+                
+          <!-- Charts Row 2 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h2 class="text-lg font-medium mb-4">Community Breakdown</h2>
+              <div class="chart-container">
+                <canvas id="community-chart"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h2 class="text-lg font-medium mb-4">E-Waste Processing Status</h2>
+              <div class="chart-container">
+                <canvas id="status-chart"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h2 class="text-lg font-medium mb-4">Component Distribution</h2>
+              <div class="chart-container">
+                <canvas id="verification-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+           <!-- Analytics Highlights -->
+           <div class="bg-white p-3 rounded-lg shadow-sm md:grid-cols-2">
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-base font-medium">Analytics Highlights</h2>
+              <a href="#" class="tab-link text-xs text-green-800 font-medium flex items-center" data-tab="advanced">
+                View full analytics
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
+                <div class="text-gray-600 mb-2">Forecasted Growth</div>
+                <div id="forecasted-growth" class="text-2xl font-bold text-green-800">+0.0%</div>
+                <div class="text-sm text-gray-500 mt-1">Next 3 months</div>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
+                <div class="text-gray-600 mb-2">Processing Rate</div>
+                <div id="processing-rate" class="text-2xl font-bold text-green-800">0%</div>
+                <div class="text-sm text-gray-500 mt-1">Last quarter</div>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
+                <div class="text-gray-600 mb-2">Peak Collection</div>
+                <div id="peak-collection" class="text-2xl font-bold text-green-800">January</div>
+                <div class="text-sm text-gray-500 mt-1">Academic year</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Table -->
+          <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-lg font-medium">Recent Collections</h2>
+              <a href="{% url 'analyticsReport:reports' %}" class="text-green-800 font-medium flex items-center">
+                View full report
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-collections" class="bg-white divide-y divide-gray-200">
+                  <!-- Will be populated via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+              <p id="pagination-info" class="text-sm text-gray-700">Showing 1-5 of 42 entries</p>
+              <div id="pagination-controls" class="flex" style="display: none;">
+                <!-- Pagination controls are hidden since we're limiting to 5 entries -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Analytics Tab -->
+        <div id="advanced-tab" class="tab-content hidden">
+          <!-- User Engagement Metrics -->
+          <div class="analytics-section mb-8">
+            <h2 class="text-xl font-semibold mb-4">User Engagement Analytics</h2>
+            <div class="grid grid-cols-1 gap-4 mb-6">
+              <div class="bg-white p-4 rounded-lg shadow-sm w-full">
+                <h3 class="text-lg font-medium mb-4 text-center">Engagement by User Role</h3>
+                
+                <!-- Role metrics - centered with flex -->
+                <div class="flex flex-wrap justify-center gap-4 mb-6">
+                  <div class="bg-gray-50 p-4 rounded-lg text-center flex-1 min-w-max max-w-xs">
+                    <span id="university-community" class="block text-xl font-bold text-green-800">0</span>
+                    <span class="text-sm text-gray-600">University Community</span>
+                  </div>
+                  <div class="bg-gray-50 p-4 rounded-lg text-center flex-1 min-w-max max-w-xs">
+                    <span id="campus-experts" class="block text-xl font-bold text-blue-800">0</span>
+                    <span class="text-sm text-gray-600">Campus Experts</span>
+                  </div>
+                  <div class="bg-gray-50 p-4 rounded-lg text-center flex-1 min-w-max max-w-xs">
+                    <span id="collection-team" class="block text-xl font-bold text-yellow-700">0</span>
+                    <span class="text-sm text-gray-600">Collection Team</span>
+                  </div>
+                  <div class="bg-gray-50 p-4 rounded-lg text-center flex-1 min-w-max max-w-xs">
+                    <span id="processing-team" class="block text-xl font-bold text-purple-700">0</span>
+                    <span class="text-sm text-gray-600">Processing Team</span>
+                  </div>
+                  <div class="bg-gray-50 p-4 rounded-lg text-center flex-1 min-w-max max-w-xs">
+                    <span id="recycling-team" class="block text-xl font-bold text-red-700">0</span>
+                    <span class="text-sm text-gray-600">Recycling Team</span>
+                  </div>
+                </div>
+                
+                <!-- Chart container with better sizing -->
+                <div class="chart-container h-64 w-full mx-auto">
+                  <canvas id="user-role-engagement-chart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Waste Collection Insights -->
+          <div class="analytics-section mb-8">
+            <h2 class="text-xl font-semibold mb-4">Waste Collection Insights</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-4">Waste by Type</h3>
+                <div class="chart-container">
+                  <canvas id="waste-by-type-chart"></canvas>
+                </div>
+                <div id="waste-insights-container"></div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-4">Growth Metrics</h3>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                  <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <span id="latest-growth" class="block text-xl font-bold text-green-800">0%</span>
+                    <span class="text-sm text-gray-600">Latest Growth</span>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <span id="avg-growth" class="block text-xl font-bold text-green-800">0%</span>
+                    <span class="text-sm text-gray-600">Avg. Growth</span>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded-lg text-center">
+                    <span id="peak-day" class="block text-xl font-bold text-green-800">-</span>
+                    <span class="text-sm text-gray-600">Peak Day</span>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="monthly-trend-chart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- University Comparison Tab -->
+        <div id="university-tab" class="tab-content hidden">
+          <div class="analytics-section mb-8">
+            <h2 class="text-xl font-semibold mb-4">University Performance Comparison</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-4">Total Weight Collected</h3>
+                <div class="chart-container">
+                  <canvas id="university-weight-chart"></canvas>
+                </div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-4">Weight per User</h3>
+                <div class="chart-container">
+                  <canvas id="university-efficiency-chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h3 class="text-lg font-medium mb-4">Performance Metrics</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Weight (kg)</th>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active Users</th>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight per User</th>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight Change</th>
+                      <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Change</th>
+                    </tr>
+                  </thead>
+                  <tbody id="university-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- Will be populated via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div id="components-tab" class="tab-content hidden">
+            <div class="analytics-section mb-8">
+              <h2 class="text-xl font-semibold mb-4">Component Processing Status</h2>
+              
+              <!-- Line Chart for Component Processing Over Time -->
+              <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-medium">Processing Timeline</h3>
+                  <select id="component-time-period" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                    <option value="month">Last Month</option>
+                    <option value="quarter">Last Quarter</option>
+                    <option value="year">Last Year</option>
+                  </select>
+                </div>
+                <div class="chart-container h-64 mb-6">
+                  <canvas id="component-timeline-chart"></canvas>
+                </div>
+                
+                <!-- Component Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="text-gray-700 font-medium mb-1">Total Components</div>
+                    <p id="total-components-metric" class="text-2xl font-bold text-green-800">0</p>
+                    <p class="text-xs text-gray-600 mt-1">All components</p>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="text-gray-700 font-medium mb-1">Processed</div>
+                    <p id="processed-components-metric" class="text-2xl font-bold text-blue-600">0</p>
+                    <p class="text-xs text-gray-600 mt-1">Components processed</p>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="text-gray-700 font-medium mb-1">Recycled</div>
+                    <p id="recycled-components-metric" class="text-2xl font-bold text-green-600">0</p>
+                    <p class="text-xs text-gray-600 mt-1">Fully recycled</p>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="text-gray-700 font-medium mb-1">Processing Rate</div>
+                    <p id="processing-rate-metric" class="text-2xl font-bold text-yellow-600">0%</p>
+                    <p class="text-xs text-gray-600 mt-1">Current efficiency</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Component Types Bar Chart -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                  <h3 class="text-lg font-medium mb-4">Components by Type</h3>
+                  <div class="chart-container h-80">
+                    <canvas id="component-types-chart"></canvas>
+                  </div>
+                </div>
+                
+                <!-- Recent Processing Table -->
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                  <h3 class="text-lg font-medium mb-4">Recent Processing</h3>
+                  <div class="overflow-y-auto h-80">
+                    <table class="min-w-full">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Component</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="components-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Will be populated via JavaScript -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+                      
+              <!-- Link to Full Report -->
+              <div class="mt-6 text-right">
+                <a href="/analyticsReport/reports/?report_type=component-processing" class="text-green-800 font-medium flex items-center justify-end">
+                  View full component processing report
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          © 2025 E-Waste Management System. All rights reserved.
+        </div>
+        <div class="text-sm text-gray-500">
+          Last updated: <span id="last-updated">April 12, 2025</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>

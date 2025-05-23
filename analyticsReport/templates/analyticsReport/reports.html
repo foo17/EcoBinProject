@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Waste Reports | E-Waste Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/report.css' %}">
+    
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="logo">E-Waste Analytics</div>
+            <div class="navbar">
+                <a href="{% url 'analyticsReport:dashboard' %}">Dashboard</a>
+                <a href="#" class="active">Reports</a>
+            </div>
+        </header>
+
+        <h1 class="page-title">Reports</h1>
+
+        <div class="controls">
+            <div class="filters">
+                <select id="report-type">
+                    <option value="ewaste-log">E-Waste Log</option>
+                    <option value="user-activity">User Activity</option>
+                    <option value="incentives">Incentives</option>
+                    <option value="component-processing">Component Processing</option>
+                </select>
+                <select id="university">
+                    <option value="all">All Universities</option>
+                    <option value="1">University A</option>
+                    <option value="2">University B</option>
+                </select>
+                <input type="date" id="start-date">
+                <input type="date" id="end-date">
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    Export
+                </button>
+                <div class="export-dropdown">
+                    <button class="export-option" data-format="csv">CSV</button>
+                    <button class="export-option" data-format="json">JSON</button>
+                </div>
+                <button class="btn btn-primary" id="generateReportBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="report-types">
+            <div class="report-type active">Detailed Report</div>
+            <div class="report-type">Summary Report</div>
+            <div class="report-type">Charts & Visualizations</div>
+        </div>
+
+        <!-- E-Waste Collection Report Card -->
+        <div id="ewaste-report" class="report-card">
+            <div class="report-header">
+                <div class="report-title">E-Waste Collection Report</div>
+            </div>
+
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <h3>Total E-Waste</h3>
+                    <div class="value">0 kg</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Items Collected</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Processing Rate</h3>
+                    <div class="value">0%</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Recycling Rate</h3>
+                    <div class="value">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-area">
+                <canvas id="report-chart"></canvas>
+            </div>
+
+            <div class="report-content">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>University</th>
+                            <th>Device Type</th>
+                            <th>Weight (kg)</th>
+                            <th>Serial Number</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table content will be dynamically populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </div>
+                <div class="pagination-item active">1</div>
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Component Processing Report Card -->
+        <div id="component-processing-report" class="report-card" style="display: none;">
+            <div class="report-header">
+                <div class="report-title">Component Processing Report</div>
+            </div>
+
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <h3>Total Components</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Processed</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Recycled</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="summary-stat">
+                    <h3>Processing Rate</h3>
+                    <div class="value">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-area">
+                <canvas id="component-chart"></canvas>
+            </div>
+
+            <div class="report-content">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Component</th>
+                            <th>Appliance</th>
+                            <th>Serial Number</th>
+                            <th>University</th>
+                            <th>Process Status</th>
+                            <th>Recycle Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table content will be dynamically populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </div>
+                <div class="pagination-item active">1</div>
+                <div class="pagination-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="{% static 'js/report.js' %}"></script>
+</body>
+</html>

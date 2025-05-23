@@ -1,0 +1,27 @@
+{% extends 'users/layout.html' %}
+
+{% block style %}
+<style>
+section#services{
+    min-height: 70vh;
+    display:flex;
+}
+div#services-content{
+    margin: auto;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<section id="services" class="py-20 px-4 max-w-6xl mx-auto">
+    <div class="text-center mb-16" id="services-content">
+        <h2 class="text-4xl font-bold text-primary mb-4">Logged Out</h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+            Thank you for visiting EcoBin. We hope to see you again soon. Remember, every small step towards sustainability makes a big difference!
+        </p>
+        <br>
+        <a href="{% url 'users:login' %}" class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition-colors">Log In Again</a>
+    </div>
+</section>
+{% endblock %}

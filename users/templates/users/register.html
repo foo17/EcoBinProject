@@ -1,0 +1,165 @@
+{% extends "users/layout.html" %}
+
+{% block style %}
+<style>
+    h1#create-account {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 2rem;
+        font-weight: bold;
+        color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form action="{% url 'users:register' %}" method="post">
+    {% csrf_token %}
+    <div class="auth-page">
+        <h1 id="create-account">Create Account</h1>
+        <div class="auth-form">
+            <form id="signUpForm" action="{% url 'users:register' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group" id="email">
+                    <label for="id_email">Email:</label>
+                    <input type="email" name="email" maxlength="254" required="" id="id_email">
+                </div>
+                <div class="form-group" id="username">
+                    <label for="id_username">Username:</label>
+                    <input type="text" name="username" maxlength="50" required="" id="id_username">
+                </div>
+                <div class="form-group" id="password">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" maxlength="255" required="" id="id_password">
+                </div>
+                <div class="form-group" id="phone_number">
+                    <label for="id_phone_number">Phone number:</label>
+                    <input type="text" name="phone_number" maxlength="15" id="id_phone_number">
+                </div>
+                <div class="form-group">
+                    <label for="id_role">Role:</label>
+                    <select name="role" required="" id="id_role">
+                        <option value="" selected="">---------</option>
+                        <option value="university_community">University Community</option>
+                        <option value="organization_team">E-waste Organization Team</option>
+                    </select>
+                </div>
+                <div class="form-group" id="university">
+                    <label for="id_university">University:</label>
+                    <select name="university" id="id_university">
+                        <option value="" selected="">---------</option>
+                        {% for university in universities %}
+                            <option value="{{ university.id }}">{{ university.university_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" id="id_organization">
+                    <label for="id_organization">Organization:</label>
+                    <select name="organization" id="id_organization">
+                        <option value="" selected disabled>---------</option>
+                        {% for organization in organizations %}
+                            <option value="{{ organization.id }}">{{ organization.organization_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" id="new-organization-btn" class="mt-2 bg-accent text-white py-1 px-3 rounded font-semibold hover:bg-blue-600 transition-colors">New Organization</button>
+                <div id="register-organization">
+                    <div class="organization-item bg-gray-100 p-3 rounded relative">
+                        <button type="button" class="remove-new-org top-2 right-2 text-red-500 hover:text-red-700">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Organization Name:</label>
+                            <input type="text" name="organization_name" class="w-full border rounded p-1" >
+                        </div>
+                      <div>
+                        <label class="block text-sm font-medium mb-1">Organization Type:</label>
+                        <select name="organization_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" >
+                            <option value="" disabled selected >Select Type</option>
+                            <option value="collection">Collection</option>
+                            <option value="processing">processing</option>
+                            <option value="recycling">Recycling</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium mb-1">Address:</label>
+                        <input type="test" name="address" class="w-full border rounded p-1">
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium mb-1">Additional Information:</label>
+                        <input type="text" name="additional_information" class="w-full border rounded p-1">
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium mb-1">Website:</label>
+                        <input type="url" name="website" class="w-full border rounded p-1">
+                      </div>
+                      </div>
+                    </div>
+                </div>
+                </div>
+                <div class="form-group" id="bio">
+                    <label for="id_bio">Bio:</label>
+                    <textarea name="bio" cols="40" rows="10" id="id_bio"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Sign Up</button>
+
+                <div class="navigation-link">
+                    <p>Already have an account? <a href="{% url 'users:login' %}">Login</a></p>
+                    <p><a href="{% url 'users:index' %}">← Back to Home</a></p>
+                </div>
+            </form>
+            {% if message %}
+                <div class="alert">{{ message }}</div>
+            {% endif %}        
+        </div>
+    </div>       
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const roleField = document.getElementById('id_role');
+    const universityField = document.getElementById('university');
+    const organizationField = document.getElementById('id_organization');
+    const registerOrganizationField = document.getElementById('register-organization')
+    const newOrganizationBtn = document.getElementById('new-organization-btn');
+    const removeNewOrgBtn = document.querySelector('.remove-new-org');
+    const organizationDropDown = document.getElementsByName('organization')[0];
+
+    function updateFieldVisibility() {
+        const roleSelected = roleField.value;
+        if (roleSelected === 'university_community') {
+            organizationField.style.display = 'none';
+            universityField.style.display = '';
+            registerOrganizationField.style.display = 'none';
+        } else if (roleSelected === 'organization_team') {
+            organizationField.style.display = '';
+            universityField.style.display = 'none';
+        } else {
+            organizationField.style.display = 'none';
+            universityField.style.display = 'none';
+            registerOrganizationField.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateFieldVisibility();
+        roleField.addEventListener('change', updateFieldVisibility);
+    });
+
+    newOrganizationBtn.addEventListener('click', function() {
+        organizationDropDown.style.display = 'none';
+        registerOrganizationField.style.display = '';
+        newOrganizationBtn.style.display = 'none';
+        removeNewOrgBtn.style.display = 'block';
+        const organizationSelect = document.getElementById('id_organization');
+        organizationSelect.value = '';
+    })
+
+    removeNewOrgBtn.addEventListener('click', function() {
+        newOrganizationBtn.style.display = '';
+        organizationDropDown.style.display = '';
+        registerOrganizationField.style.display = 'none';
+    })
+</script>
+{% endblock %}

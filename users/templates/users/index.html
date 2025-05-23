@@ -1,0 +1,29 @@
+{% extends 'users/layout.html' %}
+
+
+
+{% block content %}
+<section id="services" class="py-20 px-4 max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-primary mb-4">Welcome to EcoBin</h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+            Comprehensive e-waste recycling solutions for individuals and organizations <br>
+            Unlock the full experience by logging in or signing up.
+        </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow-md hover:-translate-y-2 transition-transform flex flex-col items-center text-center">
+            <div class="text-5xl bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center text-primary mb-6">🔑</div>
+            <h3 class="text-xl font-semibold mb-4">Log In</h3>
+            <p class="text-gray-500 mb-6">Effortless, sustainable and seamless handle of your e-waste at your convenience.</p>
+            <a href="{% url 'users:login' %}" class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition-colors">Log In</a>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-md hover:-translate-y-2 transition-transform flex flex-col items-center text-center">
+            <div class="text-5xl bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center text-primary mb-6">📝</div>
+            <h3 class="text-xl font-semibold mb-4">Register</h3>
+            <p class="text-gray-500 mb-6">Join the movement to save our planet, earn points for recycling and unlock exclusive rewards and perks!</p>
+            <a href="{% url 'users:register' %}" class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition-colors">Register</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
