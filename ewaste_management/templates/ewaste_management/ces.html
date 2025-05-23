@@ -1,0 +1,72 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'ewaste_management/approval.css' %}">
+<style>
+  h1.approval-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .status-approved {
+        color: #4CAF50;
+        font-weight: bold;
+      }
+
+  .status-rejected {
+    color: #F44336;
+    font-weight: bold;
+  }  
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="main-content">
+    <div class="approval-list-container">
+      <h1 class="approval-title">CAMPUS EXPERT APPLICATIONS</h1>
+      <div id="applicantsList">
+      {% for ce in ces %}
+        <div class="applicant-container" onclick="window.location.href=`{% url 'ewaste_management:ce' ce.id %}`">
+          <div class="applicant-info" >
+            <div class="applicant-header">
+              <div class="applicant-name">{{ce.applicant.username}}</div>
+            </div>
+            <div class="applicant-details">
+              <div>
+                <div class="detail-item">
+                  <span class="detail-label">Email:</span>
+                  <span class="detail-value">{{ce.applicant.email}}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Campus:</span>
+                  <span class="detail-value">{{ce.university.university_name}}</span>
+                </div>
+              </div>
+              <div>
+                <div class="detail-item">
+                  <span class="detail-label">Applied:</span>
+                  <span class="detail-value">{{ce.application_datetime}}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Status:</span>
+                  <span class="status-{{ce.status}}">{{ce.status}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {% endfor %}
+        {% if ces|length == 0 %}
+        <div class="no-applications">No pending applications</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

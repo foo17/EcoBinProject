@@ -1,0 +1,482 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.header {
+    background-color: #2e7d32;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.admin-name {
+    font-size: 18px;
+}
+
+.search-container {
+    display: flex;
+    margin-bottom: 20px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.search-container input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-container button {
+    padding: 10px 20px;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+    background-color: #1b5e20;
+}
+
+.user-management-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: normal;
+    color: #555;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.status-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-blocked {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.select-btn {
+    background: #2e7d32;
+    color: #f5f5f5;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
+.select-btn:hover {
+    background-color: #1b5e20;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 8px 15px;
+    margin: 0 5px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pagination button.active {
+    background-color: #2e7d32;
+    color: white;
+    border-color: #2e7d32;
+}
+
+.pagination button:hover:not(.active) {
+    background-color: #f5f5f5;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 99;
+    display: none;
+}
+
+.menu-overlay.active {
+    display: block;
+}
+
+.sidebar {
+   position: fixed;
+   top: 0;
+   left: -250px;
+   width: 250px;
+   height: 100%;
+   background-color: white;
+   box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+   transition: left 0.3s ease;
+   z-index: 100;
+   padding-top: 60px;
+}
+
+.sidebar.active {
+   left: 0;
+}
+
+.sidebar-menu {
+   list-style: none;
+   display: flex;
+   flex-direction: column;
+
+}
+.sidebar-menu li {
+   padding: 15px 20px;
+   border-bottom: 1px solid #eee;
+
+}
+.sidebar-menu li a {
+   color: #333;
+   text-decoration: none;
+   display: block;
+
+}
+.sidebar-menu li:hover {
+   background-color: #f5f5f5;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    margin: 15px 0 15px 20px;
+    color: #2e7d32;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.back-button:hover {
+    color: #1b5e20;
+}
+
+.back-button::before {
+    content: "←";
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.edit-user-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    text-align: center;
+}
+
+.user-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid #2e7d32;
+}
+
+.user-info {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.user-info-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.info-label {
+    font-weight: bold;
+    width: 120px;
+    color: #555;
+}
+
+.info-value {
+    flex: 1;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.confirm-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.confirm-btn:hover {
+    background-color: #1b5e20;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+        padding: 10px 15px;
+    }
+    
+    .menu-btn {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .admin-name {
+        margin-top: 5px;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-container input {
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .search-container button {
+        border-radius: 4px;
+        width: 100%;
+    }
+    
+    .sidebar {
+        width: 220px;
+    }
+    
+    .sidebar-menu li {
+        padding: 12px 15px;
+    }
+    
+    .status {
+        display: block;
+        width: fit-content;
+    }
+    
+    .edit-user-container {
+        padding: 15px;
+    }
+    
+    .user-image {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-title {
+        font-size: 18px;
+        padding-right: 30px;
+    }
+    
+    .menu-btn {
+        font-size: 20px;
+    }
+    
+    .close-btn {
+        font-size: 20px;
+    }
+    
+    th, td {
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+    
+    .select-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .pagination button {
+        padding: 6px 10px;
+        margin: 0 3px;
+        font-size: 14px;
+    }
+    
+    .back-button {
+        margin: 10px 0 10px 10px;
+        font-size: 14px;
+    }
+    
+    .confirm-btn {
+        padding: 8px 16px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 8px 12px;
+    }
+    
+    .menu-btn {
+        width: 25px;
+        height: 25px;
+        font-size: 18px;
+    }
+    
+    .close-btn {
+        width: 25px;
+        height: 25px;
+        font-size: 18px;
+    }
+    
+    .search-container input {
+        padding: 8px 12px;
+    }
+    
+    .search-container button {
+        padding: 8px 12px;
+    }
+    
+    .status {
+        font-size: 12px;
+        padding: 3px 6px;
+    }
+    
+    .user-image {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .info-label {
+        font-size: 14px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .header {
+        padding: 8px 15px;
+        height: 50px;
+    }
+    
+    .page-title, .admin-name {
+        font-size: 16px;
+    }
+    
+    .sidebar-menu li {
+        padding: 10px 15px;
+    }
+    
+    .edit-user-container {
+        padding: 15px;
+    }
+    
+    .user-info-row {
+        margin-bottom: 10px;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .page-title {
+        font-weight: 600;
+    }
+    
+    .info-label {
+        font-weight: 600;
+    }
+}
+
+@media (max-height: 600px) {
+    .sidebar-menu li {
+        padding: 10px 15px;
+    }
+    
+    .sidebar-menu li a {
+        font-size: 14px;
+    }
+}

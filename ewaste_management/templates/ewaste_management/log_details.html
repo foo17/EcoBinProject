@@ -1,0 +1,204 @@
+{% extends "ewaste_management/layout.html" %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'ewaste_management/logs.css' %}">
+{% endblock %}
+
+{% block content %}
+<style>
+    h1#logs-page {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2rem;
+      font-weight: bold;
+      color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+</style>
+<div class="main-content">
+    <h1 id="logs-page">E-waste Movement Logs</h1>
+    
+    <h2>Search Items</h2>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search by serial, device, or description">
+      <button onclick="searchLogs()">Search</button>
+    </div>
+    
+    <h2>Date Selection</h2>
+    <div class="date-selection">
+      <select id="monthSelect">
+        <option value="">Select Month</option>
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+
+      <select id="yearSelect">
+        <option value="">Select Year</option>
+      </select>
+    </div>
+    
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>Collection ID / Movement ID</th>
+          <th>Item</th>
+          <th>Additional Information</th>
+          <th>Movement Date</th>
+          <th>Movement Time</th>
+          <th>Movement Type</th>
+          <th>Source</th>
+          <th>Receiver</th>
+        </tr>
+      </thead>
+      <tbody id="logsTableBody">
+        <!-- {% if not appliances %}
+        No Logs Found.
+        {% endif %} -->
+        {% for appliance in appliances %}
+          <tr>
+            <td>{{ appliance.waste_collection_booking.id }}</td>
+            <td>{{ appliance.product_name }}</td>
+            <td>
+              Serial Number - {{ appliance.serial_number }}
+            </td>
+            <td>{{ appliance.waste_collection_booking.waste_collection_slot.collection_date_time|date:"Y-m-d" }}</td>
+            <td>{{ appliance.waste_collection_booking.waste_collection_slot.collection_date_time|date:"H:i" }}</td>
+            <td>Collection</td>
+            <td>{{ appliance.waste_collection_booking.user.username }}</td>
+            <td>{{ appliance.waste_collection_booking.waste_collection_slot.organization.organization_name }}</td>
+          </tr>
+        {% endfor %}
+        {% for component in components %}
+        {% for movement_record in component.record.all %}
+          <tr>
+            <td>{{ movement_record.id }}</td>
+            <td>{{ component.component_name }}</td>
+            <td>
+              Condition - {{ component.status }} <br>
+              From - {{ component.appliance.product_name }} ({{ component.appliance.serial_number }}) <br>
+            </td>
+            <td>{{ movement_record.transaction_datetime|date:"Y-m-d" }}</td>
+            <td>{{ movement_record.transaction_datetime|time:"H:i" }}</td>
+            <td>{% if movement_record.supplier.organization_type == 'processing' %} Processing - Recycling {%elif movement_record.supplier.organization_type == 'recycling' %} Recycling - Sales {% elif movement_record.supplier.organization_type == 'collection' %} Collection-Processing {% endif %}</td>
+            <td>{{ movement_record.supplier }}</td>
+            <td>{{ movement_record.recipeint }}</td>
+          </tr>
+          {%endfor%}
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <!-- <div class="total-container">
+      <h3>Tracks Summary</h3>
+      <div class="total-amount" id="totalProcessed">0</div>
+      <div class="total-label">Total Movement</div>
+    </div> -->
+  </div>
+
+  <!-- <a href="processing_report.html" class="report-btn">Report</a> -->
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+
+function searchLogs() {
+  const searchInput = document.getElementById('searchInput').value.toLowerCase();
+  const tableRows = document.querySelectorAll('#logsTableBody tr');
+
+  tableRows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+    if (rowText.includes(searchInput)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+function filterByDate() {
+  const monthSelect = document.getElementById('monthSelect').value;
+  const tableRows = document.querySelectorAll('#logsTableBody tr');
+
+  tableRows.forEach(row => {
+    const dateCell = row.querySelector('td:nth-child(4)');
+    if (dateCell) {
+      const rowDate = new Date(dateCell.textContent);
+      const rowMonth = rowDate.getMonth() + 1; 
+      if (monthSelect === '' || rowMonth == monthSelect) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  });
+}
+
+function getYear() {
+  const tableRows = document.querySelectorAll('#logsTableBody tr');
+  const yearOption = document.getElementById('yearSelect');
+  const found = [];
+
+  tableRows.forEach(row => {
+    const dataCell = row.querySelector('td:nth-child(4)');
+    if (dataCell) {
+      const rowDate = new Date(dataCell.textContent);
+      const rowYear = rowDate.getFullYear();
+      if (!found.includes(rowYear)) {
+        yearOption.innerHTML += `<option value="${rowYear}">${rowYear}</option>`;
+        found.push(rowYear);
+      }    
+    }
+  });
+}
+
+function filterByYear() {
+  const yearSelect = document.getElementById('yearSelect').value;
+  const tableRows = document.querySelectorAll('#logsTableBody tr');
+
+  tableRows.forEach(row => {
+    const dataCell = row.querySelector('td:nth-child(4)');
+    if (dataCell) {
+      const rowDate = new Date(dataCell.textContent);
+      const rowYear = rowDate.getFullYear();
+      if (yearSelect === '' || rowYear == yearSelect) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  });
+}
+
+document.getElementById('searchInput').addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    searchLogs();
+  }
+});
+
+    // Initialize page
+    window.onload = function() {      
+      // Add event listeners for date filters
+      document.getElementById('monthSelect').addEventListener('change', filterByDate);
+      getYear();
+      document.getElementById('yearSelect').addEventListener('change', filterByYear);
+    };
+  </script>
+
+{% endblock %}

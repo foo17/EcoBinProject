@@ -1,0 +1,87 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'ewaste_management/approval.css' %}">
+<style>
+    .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+    <a href="{% url 'ewaste_management:ces' %}" class="back-button">Back to Approvals</a>
+
+    <div class="main-content">
+        <div class="approval-container">
+            <!-- User Image -->
+            <!-- <img src="https://via.placeholder.com/100" alt="User" class="user-image" id="userImage"> -->
+            
+            <div class="user-info">
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value" id="userName">{{ce.applicant.username}}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">EMAIL</span>
+                    <span class="info-value" id="userEmail">{{ce.applicant.email}}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Applicatin Datetime</span>
+                    <span class="info-value" id="userPosition">{{ce.application_datetime}}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Campus</span>
+                    <span class="info-value" id="userPosition">{{ce.university.university_name}}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Application Details</span>
+                    <span class="info-value" id="userEmail">
+                        {% for line in ce.application_detail.splitlines %}
+                            {{ line }}<br>
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+            {% if ce.status == 'pending' %}
+            <div class="action-buttons">
+                <button class="action-btn approve-btn" onclick="approveApplication()">Approve</button>
+                <button class="action-btn reject-btn" onclick="rejectApplication()">Reject</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    // Approval functions
+<script>
+    function approveApplication() {
+        if (confirm("Are you sure you want to approve this user as Campus Expert?")) {
+            alert("User approved as Campus Expert!");
+            window.location.href = "{% url 'ewaste_management:approve_ce' ce.id %}";
+        }
+    }
+
+    function rejectApplication() {
+        if (confirm("Are you sure you want to reject this application?")) {
+            alert("Application rejected!");
+            window.location.href = "{% url 'ewaste_management:reject_ce' ce.id %}";
+        }
+    }
+</script>
+{% endblock %}
+

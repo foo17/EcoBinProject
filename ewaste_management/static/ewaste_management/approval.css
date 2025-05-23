@@ -1,0 +1,298 @@
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+  
+      body {
+        background-color: #f5f5f5;
+      }
+  
+      .header {
+        background-color: #2e7d32;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+  
+      .menu-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+      }
+  
+      .page-title {
+        font-size: 18px;
+      }
+  
+      .admin-name {
+        font-size: 18px;
+      }
+  
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background-color: white;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        transition: left 0.3s ease;
+        z-index: 100;
+        padding-top: 60px;
+      }
+  
+      .sidebar.active {
+        left: 0;
+      }
+  
+      .sidebar-menu {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      .sidebar-menu li {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+      }
+  
+      .sidebar-menu li a {
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
+  
+      .sidebar-menu li a i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+      }
+  
+      .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        display: none;
+      }
+  
+      .menu-overlay.active {
+        display: block;
+      }
+  
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
+      }
+  
+      .back-button {
+        display: inline-block;
+        margin: 20px;
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+  
+      .back-button::before {
+        content: "←";
+        margin-right: 8px;
+      }
+  
+      .main-content {
+        padding: 20px;
+        max-width: 1000px;
+        margin: auto;
+      }
+  
+      .approval-title {
+        text-align: center;
+        color: #2e7d32;
+        margin-bottom: 30px;
+        font-size: 24px;
+      }
+  
+      .no-applications {
+        text-align: center;
+        color: #999;
+        font-size: 18px;
+        padding: 40px;
+      }
+  
+      .applicant-container {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+  
+      .applicant-container:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+  
+      .applicant-image {
+        flex-shrink: 0;
+        margin-right: 20px;
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+  
+      .applicant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+      }
+  
+      .applicant-info {
+        flex: 1;
+      }
+  
+      .applicant-header {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+  
+      .applicant-name {
+        font-size: 18px;
+        color: #2e7d32;
+      }
+  
+      .applicant-id {
+        color: #666;
+        font-size: 14px;
+      }
+  
+      .applicant-details {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+  
+      .detail-item {
+        margin-bottom: 8px;
+        display: flex;
+      }
+  
+      .detail-label {
+        color: #777;
+        font-weight: bold;
+        min-width: 80px;
+      }
+  
+      .detail-value {
+        margin-left: 5px;
+      }
+  
+      .status-pending {
+        color: #FF9800;
+        font-weight: bold;
+      }
+
+       .no-applications {
+           text-align: center;
+           color: #666;
+           font-style: italic;
+           padding: 30px;
+       }
+
+       .approval-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        width: 400px;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .user-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #2e7d32;
+        margin-bottom: 20px;
+    }
+
+    .user-info {
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+
+    .info-label {
+        font-weight: bold;
+        width: 100px;
+        color: #555;
+    }
+
+    .info-value {
+        flex: 1;
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .action-btn {
+        padding: 10px 25px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .approve-btn {
+        background-color: #2e7d32;
+        color: white;
+    }
+
+    .reject-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .action-btn:hover {
+        opacity: 0.9;
+    }

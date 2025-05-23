@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-waste Management</title>
+    <link href="./output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block style %} {% endblock %}
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2ecc71',
+                        secondary: '#27ae60',
+                        accent: '#3498db',
+                        light: '#e8f5e9',
+                        dark: '#1b5e20'
+                    }
+                }
+            }
+        }
+    </script>
+    <title>{% block title %}EcoBin{% endblock %}</title>
+</head>
+<body class="bg-gray-50 text-gray-800 leading-relaxed">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="flex justify-between items-center px-4 py-4 max-w-7xl mx-auto relative">
+            <div class="flex items-center text-2xl font-bold text-primary">
+                EcoBin
+            </div>
+         
+            <ul id="navLinks" class="hidden md:flex items-center space-x-6">
+                <li><a href="{% url 'ewaste_management:dashboard' %}" class="font-medium hover:text-primary transition-colors">Home</a></li>
+                <li><a href="{% url 'ewaste_management:dashboard' %}" class="font-medium hover:text-primary transition-colors">Services</a></li>
+                <li><a href="{% url 'ewaste_management:profile' %}" class="font-medium hover:text-primary transition-colors">Profile</a></li>
+            </ul>
+            <div id="authButtons" class="hidden md:flex space-x-4">
+                <a href="{% url 'users:logout' %}"><button class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary hover:shadow-md transition-all hover:-translate-y-0.5">Log Out</button></a>
+            </div>
+            <div id="menuToggle" class="flex flex-col justify-between w-7 h-5 cursor-pointer md:hidden">
+                <span class="h-0.5 w-full bg-gray-800 rounded-full"></span>
+                <span class="h-0.5 w-full bg-gray-800 rounded-full"></span>
+                <span class="h-0.5 w-full bg-gray-800 rounded-full"></span>
+                {% block extra_nav %}{% endblock %}
+            </div>
+           
+           
+            <!-- Mobile menu overlay - only appears when toggled -->
+            <div id="mobileMenu" class="hidden absolute top-full left-0 w-full bg-white shadow-md z-40">
+                <ul class="flex flex-col space-y-4 py-4 px-4">
+                    <li><a href="{% url 'ewaste_management:dashboard' %}" class="font-medium hover:text-primary transition-colors block">Home</a></li>
+                    <li><a href="{% url 'ewaste_management:dashboard' %}" class="font-medium hover:text-primary transition-colors block">Services</a></li>
+                    <li><a href="{% url 'ewaste_management:profile' %}" class="font-medium hover:text-primary transition-colors block">Profile</a></li>
+                    <li><a href="{% url 'users:logout' %}" class="font-medium hover:text-primary transition-colors block">Log Out</a></li>
+                    {% block extra_mobile_nav %}{% endblock %}
+                </ul>
+            </div>
+    </header>
+ 
+ 
+ 
+
+
+    <!-- Content Block -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-16 pb-8 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div>
+                <div class="flex items-center text-2xl font-bold text-primary mb-4">
+                    EcoBin
+                </div>
+                <p class="text-gray-400 mb-6">Pioneering sustainable e-waste recycling solutions for a cleaner, greener future.</p>
+                <p class="text-gray-400 mb-6">Contact EcoBin admin if body details are required</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">f</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">t</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">in</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">ig</a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-primary mb-6">Contact Us</h3>
+                <ul class="space-y-3 text-gray-400">
+                    <li>Bukit Jalil, Kuala Lumpur</li>
+                    <li>ecobin@gmail.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 text-sm pt-8 mt-8 border-t border-gray-700">
+            &copy; 2025 EcoBin. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle functionality
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+           
+            // Toggle mobile menu
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

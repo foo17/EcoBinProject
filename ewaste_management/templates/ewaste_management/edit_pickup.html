@@ -1,0 +1,155 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+    <style>
+      .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+        h1.edit-pickup-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container mx-auto px-4 py-6">
+
+      <h1 class="edit-pickup-title">Edit Pickup Slot</h1>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                
+                <form class="flex flex-col items-center p-6" id="editPickupSlotForm" action="{% url 'ewaste_management:edit_pickup' pickup.id %}" method="post">
+                  {% csrf_token %}
+                    <div class="w-full max-w-lg space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Location (State & district)</h2>
+                            <input type="text" value="{{state}}" id="email" name="state" class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Selangor"/>
+                            <input type="text" value="{{district}}" id="email" name="district" class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Bandar Kinrara 5"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Date</h2>
+                            <input type="date" value="{{pickup.collection_date_time|default_if_none:''|date:'Y-m-d'}}" id="date" name="date" class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Select a date"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Start Time</h2>
+                            <input type="time" value="{{pickup.collection_date_time|time:'H:i'}}" id="role" name="time" class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" />
+                        </div>
+
+                          <!-- Added helpful information section -->
+                          <div class="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-blue-800">Note:</h3>
+                                    <p class="mt-1 text-sm text-blue-600">Ensure that all fields are accurate and precise. Ambiguity in the information might result in user's confusion.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row justify-center mt-6">  
+                          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Save Changes
+                        </button>
+                            <button type="button" class="bg-gray-300 hover:bg-red-600 hover:text-white text-gray-800 font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300 md:ml-4 mt-4 md:mt-0" onclick="window.location.href=`{% url 'ewaste_management:pickup' %}`;"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>                           
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="py-16"></div> 
+
+
+{% endblock %}

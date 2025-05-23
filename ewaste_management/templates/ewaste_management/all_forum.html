@@ -1,0 +1,90 @@
+{% extends "ewaste_management/layout.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-4">
+    <header class="bg-primary text-white p-6 rounded-lg mb-6 text-center">
+        <h1 class="text-3xl font-bold">E-Waste Recycling Community Forum</h1>
+        <p class="mt-2">Browse all topics about sustainable electronic waste management</p>
+    </header>
+   
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Sidebar -->
+        <div class="md:w-1/4 bg-white p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold mb-4">Forum Options</h3>
+            <ul class="space-y-2">
+                <li><a href="{% url 'ewaste_management:forum' %}" class="text-primary hover:underline">Start a New Topic</a></li>
+                <li><a href="{% url 'ewaste_management:user_created_topics' %}" class="text-primary hover:underline">Your Created Topics</a></li>
+                <li><a href="" class="text-primary hover:underline font-bold">All Topics</a></li>
+            </ul>
+           
+            <div class="mt-6">
+                <h3 class="text-xl font-bold mb-4">Filter Topics</h3>
+                <form method="post" action="{% url 'ewaste_management:all_topics' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="search" class="block text-gray-700 mb-2">Search</label>
+                        <input type="text" id="search" name="search" class="w-full p-2 border border-gray-300 rounded" placeholder="Search topics...">
+                    </div>
+                    <div class="mb-4">
+                        <label for="sort" class="block text-gray-700 mb-2">Sort By</label>
+                        <select id="sort" name="sort" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="most_comments">Most Comments</option>
+                        </select>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded text-sm hover:shadow-md transition-all hover:-translate-y-0.5">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+       
+        <!-- Main Content -->
+        <div class="md:w-3/4">
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h3 class="text-xl font-bold mb-4">All Topics</h3>
+               
+                {% for topic in topics %}
+                    <div class="py-4 border-b border-gray-200 last:border-0">
+                        <h4 class="font-bold text-lg mb-1">{{ topic.title }}</h4>
+                        <div class="flex justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold mr-3">
+                                    {{ topic.user.username|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <div class="font-bold">{{ topic.user.username }}</div>
+                                    <div class="text-gray-500 text-sm">{{ topic.created_at|date:"F j, Y" }}</div>
+                                </div>
+                            </div>
+                            <div class="text-gray-500 text-sm">
+                                <span class="font-semibold">{{ topic.comments.count }}</span> comments
+                            </div>
+                        </div>
+                        <div class="mb-4 line-clamp-3">
+                            {{ topic.content }}
+                        </div>
+                        <div class="flex justify-end">
+                            <a href="{% url 'ewaste_management:topic' topic.id %}" class="inline-block px-4 py-2 bg-primary text-white rounded-full text-sm hover:bg-secondary hover:shadow-md transition-all hover:-translate-y-0.5">View More</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="py-8 text-center text-gray-500">
+                        <p>No topics have been created yet.</p>
+                        <p class="mt-2">Be the first to start a discussion!</p>
+                    </div>
+                {% endfor %}
+            </div>
+           
+
+        </div>
+    </div>
+</div>
+
+<!-- Testing -->
+
+{% endblock %}
+

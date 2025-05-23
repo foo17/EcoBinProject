@@ -1,0 +1,150 @@
+{% extends 'ewaste_management/index_layout.html' %}
+
+{% block body %}
+    <!-- Main Landing Page -->
+    <div class="container" id="landingPage">
+        <div class="header">
+            <div class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+
+            <div class="auth-buttons">
+                <a href="signup.html" class="btn btn-create">CREATE ACCOUNT</a>
+                <a href="login.html" class="btn btn-login">LOGIN</a>
+            </div>
+        </div>
+
+        <div class="slides-container">
+            <div class="slides">
+                <!-- Slide 1 -->
+                <div class="slide slide1">
+                    <div class="banner">
+                        <div class="banner-content">
+                            <div class="banner-title">
+                                Earn <span class="gift-text">Gift</span> when recycling used electronic
+                            </div>
+                            <div class="banner-text">
+                                FREE pick up or Free Shipping to exchange your old device for Gift.
+                            </div>
+                        </div>
+                        <div class="banner-image">
+                            <img src="{{url_for ('ewaste_management',file_name='static/img/Ewaste1.png')}}" alt="Electronic devices recycling" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide slide2">
+                    <h1 class="services-title">Services <span>We Offer</span></h1>
+                    <div class="services-grid">
+                        <!-- Service 1 -->
+                        <div class="service-card">
+                            <h2 class="service-title">Free Pickup</h2>
+                            <p class="service-description">
+                                1 working device (free value estimation by us) or 3 qualified non-working devices following our standard recycling points reward list for details!.
+                            </p>
+                            <div class="service-icon">
+                                <img src"{{url_for ('ewaste_management',file_name='static/img/pick_up.png')}}"alt="Pickup icon" />
+                            </div>
+                        </div>
+
+                        <!-- Service 2 -->
+                        <div class="service-card">
+                            <h2 class="service-title">Secure Data Destruction</h2>
+                            <p class="service-description">
+                                Starting from RM25 per device for secure data destruction using world-class software and hardware. Optional: FREE off-site with data destruction certificate or on-site without a certificate.
+                            </p>
+                            <div class="service-icon">
+                                <img src"{{url_for ('ewaste_management',file_name='static/img/Data.png')}}" />
+                            </div>
+                        </div>
+
+                        <!-- Service 3 -->
+                        <div class="service-card">
+                            <h2 class="service-title">ERTH Collection Box</h2>
+                            <p class="service-description">
+                                Starting from RM500 per box allows any organization to offer convenient e-waste collection on-site with unlimited pickups for a full box. (For a list of our collection boxes, please visit <a href="http://tiny.cc/erthbox" class="service-link">http://tiny.cc/erthbox</a>)
+                            </p>
+                            <div class="service-icon">
+                                <img src"{{url_for ('ewaste_management',file_name='static/img/Earth.png')}}" alt="Collection box icon" />
+                            </div>
+                        </div>
+
+                        <!-- Service 4 -->
+                        <div class="service-card">
+                            <h2 class="service-title">B2B Enterprise Solution</h2>
+                            <p class="service-description">
+                                We manage the recycling program of large enterprises like Maxis, Panasonic, DHL, HongLeong and many more to enhance ESG reporting & compliance (<a href="#" class="service-link">Whatsapp</a> for details!).
+                            </p>
+                            <div class="service-icon">
+                                <img src"{{url_for ('ewaste_management',file_name='static/img/B2B.png')}}" alt="B2B icon" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-dots">
+                <span class="slider-dot" onclick="changeSlide(0)"></span>
+                <span class="slider-dot" onclick="changeSlide(1)"></span>
+            </div>
+        </div>
+
+        <!-- About Us Section -->
+        <div class="about-us">
+            <div class="about-container">
+                <div class="logo">
+                    <img src="{{url_for ('ewaste_management',file_name='static/img/Recycle Logo.png)}}" alt="Recycling Logo" />
+                </div>
+                <div class="about-content">
+                    <span class="learn-more">LEARN MORE</span>
+                    <h2 class="about-title">About Us</h2>
+                    <p class="about-text">
+                        Recycle electronics to decrease the waste of valuable raw materials.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Slider functionality
+        let currentSlide = 0;
+        const slidesWrapper = document.querySelector('.slides');
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const totalSlides = slides.length;
+        let interval;
+
+        function updateSlide() {
+            slidesWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlide();
+        }
+
+        function changeSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateSlide();
+            clearInterval(interval);
+            interval = setInterval(nextSlide, 5000);
+        }
+
+        dots[0].classList.add('active');
+        updateSlide();
+        interval = setInterval(nextSlide, 5000);
+    </script>
+{% endblock %}

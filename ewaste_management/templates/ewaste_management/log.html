@@ -1,0 +1,135 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'ewaste_management/logs.css' %}">
+{%endblock %}
+
+{% block content %}
+
+    <style>
+        .main-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .logs-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .log-button {
+            background-color: white;
+            border: 1px solid #c8e6c9;
+            border-left: 5px solid #2e7d32;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .log-button:hover {
+            background-color: #e8f5e9;
+            transform: translateX(5px);
+        }
+
+        .log-button i {
+            font-size: 24px;
+            margin-right: 15px;
+            color: #2e7d32;
+        }
+
+        .log-button h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #2e7d32;
+        }
+
+        .log-button p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .log-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .log-arrow {
+            font-size: 18px;
+            color: #2e7d32;
+        }
+        h1#log-page {
+          text-align: center;
+          margin-bottom: 20px;
+          font-size: 2rem;
+          font-weight: bold;
+          color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+        }
+  
+    </style>
+
+      <div class="main-content">
+        <h1 id="log-page">E-Waste Logs</h1>
+        
+        <div class="logs-container">
+            <button class="log-button" onclick="navigateToLog('collection')">
+                <div class="log-content">
+                    <i class="fas fa-truck"></i>
+                    <div>
+                        <h2>Collection Logs</h2>
+                        <p>View all collection activities and records</p>
+                    </div>
+                </div>
+                <span class="log-arrow">→</span>
+            </button>
+
+            <button class="log-button" onclick="navigateToLog('processing')">
+                <div class="log-content">
+                    <i class="fas fa-recycle"></i>
+                    <div>
+                        <h2>Processing Logs</h2>
+                        <p>View all processing activities and records</p>
+                    </div>
+                </div>
+                <span class="log-arrow">→</span>
+            </button>
+
+            <button class="log-button" onclick="navigateToLog('recycle')">
+                <div class="log-content">
+                    <i class="fas fa-dumpster"></i>
+                    <div>
+                        <h2>Recycle Logs</h2>
+                        <p>View all recycling activities and records</p>
+                    </div>
+                </div>
+                <span class="log-arrow">→</span>
+            </button>
+        </div>
+      </div>
+    
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        function navigateToLog(logType) {
+            // alert(`Navigating to ${logType} logs page`);
+            window.location.href = `${logType}_logs.html`;
+        }
+    </script>
+{% endblock %}
+

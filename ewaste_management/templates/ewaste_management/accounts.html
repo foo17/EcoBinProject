@@ -1,0 +1,187 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'ewaste_management/users_management.css' %}">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1#user_management-page {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+    </style>
+    <div class="main-content" id="contentContainer">
+        <h1 id="user_management-page">User Management</h1>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search users...">
+            <button id="searchButton">Search</button>
+        </div>
+        
+        <div class="user-management-card">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>E-mail</th>
+                        <th>Username</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- User rows will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination">
+            <button id="prevPage" disabled>Previous</button>
+            <div id="pageNumbers"></div>
+            <button id="nextPage">Next</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    const allUsers = JSON.parse('{{ accounts_json|escapejs }}');
+
+    // Pagination variables
+    let currentPage = 1;
+    const usersPerPage = 5;
+    let filteredUsers = [...allUsers];
+
+    // DOM elements
+    const userTableBody = document.getElementById('userTableBody');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const pageNumbersContainer = document.getElementById('pageNumbers');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    // Function to display users for the current page
+    function displayUsers() {
+        userTableBody.innerHTML = '';
+        
+        const startIndex = (currentPage - 1) * usersPerPage;
+        const endIndex = startIndex + usersPerPage;
+        const usersToDisplay = filteredUsers.slice(startIndex, endIndex);
+        usersToDisplay.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.pk}</td>
+                <td>${user.fields.username}</td>
+                <td>${user.fields.last_login}</td>
+                <td><span class="status status-${user.fields.is_active ? 'active' : 'blocked'}">${user.fields.is_active ? 'Active' : 'Blocked'}</span></td>
+                <td>${user.fields.role}</td>
+                <td><button class="select-btn" onclick="navigateToEditPage('${user.fields.username}')">Select</button></td>
+            `;
+            userTableBody.appendChild(row);
+        });
+        
+        updatePaginationControls();
+    }
+
+    // Function to update pagination controls
+    function updatePaginationControls() {
+        const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+        
+        // Clear previous page numbers
+        pageNumbersContainer.innerHTML = '';
+        
+        // Add page number buttons
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            if (i === currentPage) {
+                pageBtn.classList.add('active');
+            }
+            pageBtn.addEventListener('click', () => {
+                currentPage = i;
+                displayUsers();
+            });
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+        
+        // Update previous/next buttons
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages;
+    }
+
+    // Function to navigate to edit user page
+    function navigateToEditPage(username) {
+        username = username;
+        // Navigate to edit_users.html with the user ID as a parameter
+        const baseUrl = "{% url 'ewaste_management:index' %}";
+        const newUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1) + "accounts/" + username;
+        window.location.href = newUrl;
+    }
+
+    // Search functionality
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            filteredUsers = [...allUsers];
+        } else {
+            filteredUsers = allUsers.filter(user => 
+                user.pk.toLowerCase().includes(searchTerm) ||
+                user.fields.username.toLowerCase().includes(searchTerm) ||
+                user.fields.role.toLowerCase().includes(searchTerm)          );
+        }
+        
+        currentPage = 1;
+        displayUsers();
+    }
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('menuOverlay').classList.toggle('active');
+    }
+
+    // Event listeners
+    searchButton.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayUsers();
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayUsers();
+        }
+    });
+
+    // Initial display
+    displayUsers();
+</script>
+
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'ewaste_management/incentive.css' %}">
+<style>
+    h1#add-incentive-page{
+        text-align: center;
+        margin-bottom:1rem;
+        font-size: 2rem;
+        font-weight: bold;
+        color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <h1 id="add-incentive-page">Add Incentive</h1>
+    <div class="main-content">        
+        
+        <div class="form-container">
+            <form action="{% url 'ewaste_management:add_incentive' %}" method="post">
+                {% csrf_token %}
+            <div class="form-group">
+                <label for="itemName">INCENIVE NAME</label>
+                <input name="name" type="text" id="itemName" placeholder="Enter item name">
+            </div>
+
+            <div class="form-group">
+                <label for="description">INCENTIVE DESCRIPTION</label>
+                <input name="description" type="text" id="pointsNeeded" placeholder="Enter Description">
+            </div>
+            
+            <div class="form-group">
+                <label for="pointsNeeded">POINTS NEEDED TO REDEEM</label>
+                <input name="points_required" type="number" id="pointsNeeded" placeholder="Enter points" min="1" step="1">
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-confirm" >Confirm</button>
+            </div>
+            </form>
+            <div class="button-group">
+                <button class="btn btn-cancel" onclick="window.location.href=`{%url 'ewaste_management:incentives' %}`">Cancel</button>
+            </div>
+            {% if message %}
+            <div class="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const incentiveId = urlParams.get('id');
+        const isNew = urlParams.get('new') === 'true';
+
+        // Menu toggle function
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        // Image upload functionality
+        const imageUpload = document.getElementById('imageUpload');
+        const imageInput = document.getElementById('imageInput');
+        const previewImage = document.getElementById('previewImage');
+
+        imageUpload.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImage.src = event.target.result;
+                    previewImage.style.display = 'block';
+                    imageUpload.querySelector('p').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Cancel button function
+        function cancelChanges() {
+            if (confirm('Are you sure you want to discard your changes?')) {
+                window.location.href = 'incentive.html';
+            }
+        }
+
+        // Confirm button function with double confirmation
+        function confirmChanges() {
+            const itemName = document.getElementById('itemName').value;
+            const pointsNeeded = document.getElementById('pointsNeeded').value;
+            const imageFile = imageInput.files[0];
+
+            // Basic validation
+            if (!itemName || !pointsNeeded) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to save these changes?')) {
+                return;
+            }
+
+            // Second confirmation for important changes
+            if (!isNew && !confirm('This will update the incentive for all users. Confirm again to proceed.')) {
+                return;
+            }
+
+            // In a real application, you would:
+            // 1. Create FormData object
+            // 2. Add all form data to it
+            // 3. Send to server via AJAX
+            // 4. Handle response
+            
+            alert('Changes saved successfully!');
+            window.location.href = 'incentive.html';
+        }
+
+        // If editing existing item, load its data
+        if (!isNew && incentiveId) {
+            // In a real app, you would fetch the existing data from your database
+            // This is just a simulation
+            setTimeout(() => {
+                document.getElementById('itemName').value = 'Sample Item';
+                document.getElementById('pointsNeeded').value = '1000';
+                previewImage.src = 'https://via.placeholder.com/200';
+                previewImage.style.display = 'block';
+                imageUpload.querySelector('p').style.display = 'none';
+            }, 500);
+        }
+    </script>
+
+{% endblock %}

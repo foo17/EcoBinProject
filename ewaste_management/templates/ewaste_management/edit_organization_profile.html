@@ -1,0 +1,158 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+    <style>
+        .header {
+           background-color: #2e7d32;
+           color: white;
+           padding: 15px 20px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           position: relative;
+       }
+  
+  .menu-btn {
+           background: none;
+           border: none;
+           color: white;
+           font-size: 24px;
+           cursor: pointer;
+           padding: 5px;
+       }
+       
+       .sidebar {
+           position: fixed;
+           top: 0;
+           left: -250px;
+           width: 250px;
+           height: 100%;
+           background-color: white;
+           box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+           transition: left 0.3s ease;
+           z-index: 100;
+           padding-top: 60px;
+       }
+       
+       .sidebar.active {
+           left: 0;
+       }
+       
+       .sidebar-menu {
+           list-style: none;
+           display: flex;
+           flex-direction: column;
+       
+        }
+       .sidebar-menu li {
+           padding: 15px 20px;
+           border-bottom: 1px solid #eee;
+       
+        }
+       .sidebar-menu li a {
+           color: #333;
+           text-decoration: none;
+           display: block;
+       
+        }
+       .sidebar-menu li:hover {
+           background-color: #f5f5f5;
+       }
+       
+       .menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0,0,0,0.5);
+           z-index: 99;
+           display: none;
+       }
+       
+       .menu-overlay.active {
+           display: block;
+       }
+    </style>
+{% endblock %}
+
+{% block content %}    
+        <div class="max-w-2xl mx-auto mt-8">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-green-600 p-4 md:p-5 text-center">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Company Profile
+                    </h2>
+                </div>
+                
+                
+                <form class="flex flex-col items-center p-6" action="{% url 'ewaste_management:edit_org_profile' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="w-full max-w-lg space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Name</h2>
+                            <input readonly type="text" id="company" name="name" value="{{organization.organization_name}}" required class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Organization name"/>
+                            <p class="text-xs text-gray-500 mt-1">This value cannot be changed</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Organization Type</h2>
+                            <select id="contactPerson" name="organization_type" required class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Organization Type"/>
+                                <option value="" disabled>Select Organization Type</option>
+                                <option value="collection" {% if organization.organization_type == 'collection' %} selected {%endif%}>Collection</option>
+                                <option value="processing" {% if organization.organization_type == 'processing' %} selected {% endif %}>Processing</option>
+                                <option value="recycling" {% if organization.organization_type == 'recycling' %} selected {%endif%}>Recycling</option>
+                            </select>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Address</h2>
+                            <input type="text" value="{{organization.address}}" id="location" name="address" required class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company's Address"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Additional Information</h2>
+                            <input type="text" value="{{organization.additional_information}}" id="location" name="additional_information" required class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company's Address"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">website</h2>
+                            <input type="url" id="phone" value="{{organization.website}}" name="website" required class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="https://......."/>
+                        </div>
+                    </div>
+
+                        <div class="flex flex-col md:flex-row justify-center mt-6">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                Save Changes
+                            </button>
+
+                            <a href="{% url 'ewaste_management:organization_profile' %}">
+                                <button type="button" class="bg-gray-300 hover:bg-red-600 hover:text-white text-gray-800 font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300 md:ml-4 mt-4 md:mt-0"> 
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                    Cancel
+                                </button>
+
+                            
+                            </a>                           
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Spacing -->
+    <div class="py-16"></div>
+{% endblock %}

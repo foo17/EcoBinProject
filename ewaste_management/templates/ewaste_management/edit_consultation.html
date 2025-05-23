@@ -1,0 +1,87 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+
+{% block content %}
+<header class="bg-primary text-white p-4 text-center">
+  <h1 class="text-2xl font-bold">Edit Consultation Slot</h1>
+  <p class="mt-1">Modify the details of your consultation slot</p>
+</header>
+
+<div class="max-w-2xl mx-auto p-4">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="py-2 px-4 mb-4 text-white rounded {% if message.tags == 'success' %}bg-green-500{% else %}bg-red-500{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  
+  <div class="bg-white rounded-lg shadow p-6">
+    <form method="post" action="{% url 'ewaste_management:edit_consultation' consultation.id %}" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label for="consultation-date" class="block font-semibold mb-1">Date:</label>
+        <input type="date" id="consultation-date" name="date" value="{{ consultation.date|date:'Y-m-d' }}" class="w-full border rounded p-2" required>
+      </div>
+      <div>
+        <label for="consultation-time" class="block font-semibold mb-1">Time:</label>
+        <input type="time" id="consultation-time" name="time" value="{{ consultation.time|time:'H:i' }}" class="w-full border rounded p-2" required>
+      </div>
+      <div>
+        <label for="consultation-location" class="block font-semibold mb-1">Location:</label>
+        <input type="text" id="consultation-location" name="location" value="{{ consultation.location}}" class="w-full border rounded p-2" required>
+      </div>
+      <div>
+        <label for="consultation-duration" class="block font-semibold mb-1">Location:</label>
+        <input type="number" step="0.01" id="consultation-duration" name="duration_hr" value="{{ consultation.duration_hr}}" class="w-full border rounded p-2" required>
+      </div>
+      <div>
+        <label for="consultation-status" class="block font-semibold mb-1">Status:</label>
+        <select id="consultation-status" name="status" class="w-full border rounded p-2" required>
+          <option value="available" {% if consultation.status == 'available' %}selected{% endif %}>Available</option>
+          <option value="cancelled" {% if consultation.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+      </div>
+      
+      {% if consultation.user and consultation.status != 'pending' %}
+        <div class="p-4 bg-gray-100 rounded-lg">
+          <p class="font-semibold">User Information:</p>
+          <p>Name: {{ consultation.user.username }}</p>
+          <p>Email: {{ consultation.user.email }}</p>
+          <p>Phone: {{ consultation.user.phone|default:"N/A" }}</p>
+          <p class="text-sm text-gray-500 mt-2 italic">Note: User information is automatically loaded from the database.</p>
+        </div>
+      {% else %}
+        <div class="p-4 bg-gray-100 rounded-lg">
+          <p class="font-semibold">User Information:</p>
+          <p id="user-display-text">No user has been assigned to this slot yet.</p>
+          <p class="text-sm text-gray-500 mt-2 italic">Note: User information will be loaded from the database when the status is confirmed, cancelled, or completed.</p>
+        </div>
+      {% endif %}
+      
+      <div class="flex justify-between">
+        <a href="{% url 'ewaste_management:consultations' %}" class="bg-gray-300 text-gray-800 py-2 px-4 rounded font-semibold hover:bg-gray-400 transition-colors">Cancel</a>
+        <button type="submit" class="bg-secondary text-white py-2 px-4 rounded font-semibold hover:bg-dark transition-colors">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('consultation-status');
+    const userDisplayText = document.getElementById('user-display-text');
+    
+    if (statusSelect && userDisplayText) {
+      statusSelect.addEventListener('change', function() {
+        if (this.value === 'confirmed' || this.value === 'cancelled' || this.value === 'completed') {
+          userDisplayText.textContent = 'The system will load user data from the database once saved.';
+        } else {
+          userDisplayText.textContent = 'No user has been assigned to this slot yet.';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

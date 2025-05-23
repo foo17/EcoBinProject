@@ -1,0 +1,63 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'ewaste_management/users_management.css' %}" class="css">
+{% endblock %}
+
+
+{% block content %}
+    <style>
+        .main-content {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        margin-top: 20px;
+        }
+    </style>
+
+    <div class="main-content">
+        <div class="edit-user-container">
+            
+            <div class="user-info">
+                <div class="user-info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value" id="userName">{{requested_user.username}}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="info-label">EMAIL</span>
+                    <span class="info-value" id="userEmail">{{requested_user.email}}</span>
+                </div>
+
+                <div class="user-info-row">
+                    <span class="info-label">Bio</span>
+                    <span class="info-value" id="userEmail">{{requested_user.bio|default_if_none:'Not Specified'}}</span>
+                </div>
+                
+                <div class="user-info-row">
+                    <span class="info-label">Phone Number</span>
+                    <span class="info-value" id="userEmail">{{ requested_user.phone_number|default:"Not specified" }}</span>
+                </div>
+
+                <div class="user-info-row">
+                    <span class="info-label">Role</span>
+                    <span class="info-value" id="userEmail">{{requested_user.role}}</span>
+                </div>
+
+                <div class="user-info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" id="userEmail">{% if requested_user.is_active %} Active {% else %} Suspended {% endif %}</span>
+                </div>
+                
+            <div class="flex justify-center mt-6 space-x-4">
+                <a href="{% url 'ewaste_management:accounts' %}" class="border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50 transition-colors">Back</a>
+                <button onclick="window.location.href=`{% url 'ewaste_management:account_action' requested_user.username %}`" {% if not requested_user.is_active %} class="bg-primary text-white px-6 py-2 rounded hover:bg-secondary transition-colors" {% else %} class="bg-red-500 hover:bg-red-600 hover:text-white text-gray-800 text-white px-6 py-2 rounded" {% endif %}>{% if requested_user.is_active %} Suspend {% else %} Reactivate {% endif %}</button>
+                {% if requested_user.role == 'campus_expert' %}
+                    <button class="bg-red-500 hover:bg-red-600 hover:text-white text-gray-800 text-white px-6 py-2 rounded" onclick="window.location.href=`{% url 'ewaste_management:demote_account' requested_user.username %}`">Demote</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

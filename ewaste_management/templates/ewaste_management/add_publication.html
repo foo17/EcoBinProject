@@ -1,0 +1,58 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block content %}
+<header class="bg-primary text-white p-4 text-center">
+    <h1 class="text-2xl font-bold">Add New Publication</h1>
+    <p class="mt-1">Share your research and findings</p>
+</header>
+
+<div class="max-w-3xl mx-auto p-4">
+    <div id="message-box" class="hidden py-2 px-4 mb-4 text-white rounded"></div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post" action="{% url 'ewaste_management:add_publication' %}" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="title" class="block font-semibold mb-1">Publication Title:</label>
+                <input type="text" id="title" name="title" class="w-full border rounded p-2" required>
+            </div>
+            
+            <div>
+                <label for="publication_date" class="block font-semibold mb-1">Start Date:</label>
+                <input type="date" id="publication_date" name="event_start_date" class="w-full border rounded p-2" required>
+            </div>
+
+            <div>
+                <label for="publication_date" class="block font-semibold mb-1">End Date:</label>
+                <input type="date" id="publication_date" name="event_end_date" class="w-full border rounded p-2" required>
+            </div>
+            
+            <div>
+                <label for="publication_location" class="block font-semibold mb-1">Location:</label>
+                <input type="text" id="publication_location" name="publication_location" class="w-full border rounded p-2" required>
+            </div>
+            
+            <div>
+                <label for="publication_detail" class="block font-semibold mb-1">Publication Details:</label>
+                <textarea id="publication_detail" name="publication_detail" class="w-full border rounded p-2 min-h-[200px]" required></textarea>
+            </div>
+            
+            <!-- Hidden field for user ID, will be filled by backend -->
+            <input type="hidden" name="user" value="{{ request.user.id }}">
+            
+            <div class="flex justify-between mt-6">
+                <a href= "{% url 'ewaste_management:uemip' %}" class="bg-gray-300 text-gray-700 py-2 px-4 rounded font-semibold hover:bg-gray-400 transition-colors">Cancel</a>
+                <button type="submit" class="bg-secondary text-white py-2 px-4 rounded font-semibold hover:bg-dark transition-colors">Save Publication</button>
+            </div>
+        </form>
+        {% if message %}
+            <div class="mt-4 text-red-500">{{ message }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

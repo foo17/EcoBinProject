@@ -1,0 +1,64 @@
+{% extends "ewaste_management/layout.html" %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'ewaste_management/incentive.css' %}">
+<style>
+  h1#edit-incentive-page{
+    text-align: center;
+    margin-bottom:1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .alert{
+    color: red;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+  <h1 id="edit-incentive-page">Edit Incentive</h1>
+    <div class="form-container">
+      <form action="{% url 'ewaste_management:edit_incentive' incentive.id%}" method="post">
+        {% csrf_token %}
+      <div class="form-group">
+          <label for="itemName">ITEM NAME</label>
+          <input type="text" id="name" placeholder="Enter item name" value="{{incentive.name}}">
+      </div>  
+
+      <div class="form-group">
+        <label for="itemName">ITEM DESCRIPTION</label>
+        <textarea name="description" id="description">{{incentive.description}}</textarea>
+      </div> 
+      
+      <div class="form-group">
+          <label for="pointsNeeded">POINTS NEEDED TO REDEEM</label>
+          <input type="number" id="pointsNeeded" placeholder="Enter points" min="1" step="1" value="{{incentive.points_required}}" name="points_required">
+      </div>
+      
+      {% if message %}
+      <div class="form-group">
+         <div class="alert">{{message}}</div>
+      </div>
+      {% endif %}
+      
+      <div class="button-group">
+          <button type="submit" class="btn btn-confirm">Save Changes</button>
+      </div>
+  </form>
+  <div class="button-group">
+    <button class="btn btn-delete" onclick="window.location.href=`{% url 'ewaste_management:delete_incentive' incentive.id %}`">Delete</button>
+    <button class="btn btn-cancel" onclick="window.location.href=`{% url 'ewaste_management:incentives' %}`">Cancel</button>
+  </div>
+  </div>
+  
+</div>
+{% endblock %}

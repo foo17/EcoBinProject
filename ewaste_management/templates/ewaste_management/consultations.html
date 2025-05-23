@@ -1,0 +1,94 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+
+{% block title %}EcoBin - Consultation Management{% endblock %}
+
+{% block content %}
+<header class="bg-primary text-white p-4 text-center">
+  <h1 class="text-2xl font-bold">EcoBin Consultation Admin</h1>
+  <p class="mt-1">Manage your consultation slots</p>
+</header>
+
+<div class="max-w-7xl mx-auto p-4">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="py-2 px-4 mb-4 text-white rounded {% if message.tags == 'success' %}bg-green-500{% else %}bg-red-500{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% if user.role == 'campus_expert' %}
+  <div class="flex justify-between items-center mb-4 bg-light p-4 rounded-lg">
+    <h2 class="text-xl font-bold text-dark m-0">Consultation Management</h2>
+    <a href="{% url 'ewaste_management:add_consultation' %}" class="bg-secondary text-white py-2 px-4 rounded font-semibold hover:bg-dark transition-colors">Add New Slot</a>
+  </div>
+  {% endif %}
+  
+  <div class="flex items-center mb-4">
+    <form method="post" action="{% url 'ewaste_management:consultations' %}" class="flex items-center">
+      {% csrf_token %}
+      <label for="filter-status" class="mr-2">Filter by status:</label>
+      <select id="filter-status" name="status" class="border rounded p-2" onchange="this.form.submit()">
+        <option value="" {% if request.GET.status == 'all' or not request.GET.status %}selected{% endif %}>All Slots</option>
+        <option value="available" {% if request.GET.status == 'pending' %}selected{% endif %}>Available</option>
+        <option value="booked" {% if request.GET.status == 'confirmed' %}selected{% endif %}>Booked</option>
+        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </form>
+  </div>
+  
+  <div id="consultations-container" class="space-y-4 min-h-[50vh]">
+    {% if consultations %}
+      {% for consultation in consultations %}
+        <div class="bg-white rounded-lg shadow p-4 relative">
+          <h2 class="text-lg font-bold text-primary mt-0">Consultation Slot</h2>
+          <p class="text-accent font-bold">{{ consultation.date|date:"l, F d, Y" }} at {{ consultation.time|time:"g:i A" }} for {{consultation.duration_hr}}hr</p>
+          <p class="mt-2">
+            <span class="inline-block px-2 py-1 rounded 
+              {% if consultation.status == 'available' %}bg-green-100 text-green-800
+              {% elif consultation.status == 'cancelled' %}bg-red-100 text-red-800
+              {% elif consultation.status == 'booked' %}bg-blue-100 text-blue-800{% endif %} capitalize">
+              {{ consultation.status }}
+            </span>
+          </p>
+          
+          {% if consultation.user and consultation.status != 'pending' %}
+            <div class="mt-2 p-3 bg-gray-50 rounded-lg">
+              <h3 class="font-semibold text-dark">User Information:</h3>
+              <p>Name: {{ consultation.user.username }}</p>
+              <p>Email: {{ consultation.user.email }}</p>
+              <p>Phone: {{ consultation.user.phone|default:"N/A" }}</p>
+            </div>
+          {% endif %}
+          
+          <p class="mt-2">Created: {{ consultation.created_at|date:"F d, Y" }}</p>
+          {% if consultation.date < current_date and consultation.status != 'completed' %}
+            <p class="mt-2 italic text-gray-600">This consultation date has passed.</p>
+          {% endif %}
+          {% if user.role == 'campus_expert' and user.username == consultation.consultant.username %}
+          <div class="absolute top-4 right-4 flex space-x-2">
+            <a href="{% url 'ewaste_management:edit_consultation' consultation.id %}" class="bg-secondary text-white py-1 px-3 rounded font-semibold hover:bg-dark transition-colors">Edit</a>
+          </div>
+          {% elif user.role == 'university_community' and consultation.status == 'available' %}
+          <form action="{% url 'ewaste_management:book_consultation' consultation.id %}" method="post">
+            {%csrf_token %}
+          <div class="absolute top-4 right-4 flex space-x-2">
+            <a class="bg-secondary text-white py-1 px-3 rounded font-semibold hover:bg-dark transition-colors"><button type="submit">Book</button></a>
+          </div>
+        </form>
+        {% elif user.role == 'university_community' and consultation.status == 'booked' %}
+          <div class="absolute top-4 right-4 flex space-x-2">
+            <a href="{% url 'ewaste_management:cancel_consultation' consultation.id %}" class="bg-secondary text-white py-1 px-3 rounded font-semibold hover:bg-dark transition-colors">Cancel</a>
+          </div>
+         {% endif %}
+          <!-- <div class="absolute top-4 right-4 flex space-x-2">
+            <a href="{% url 'ewaste_management:edit_consultation' consultation.id %}" class="bg-secondary text-white py-1 px-3 rounded font-semibold hover:bg-dark transition-colors">Edit</a>
+          </div> -->
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center py-4">No consultation slots found.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

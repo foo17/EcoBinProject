@@ -1,0 +1,89 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+
+    
+
+{% block style %}
+{% if user.role == 'admin' %}
+<link rel="stylesheet" href="{% static 'ewaste_management/admin.css' %}">
+<style>
+    .main-content {
+        padding: 20px;
+    }
+</style>
+{% elif user.role == 'university_community' or user.role == 'campus_expert' %}
+<link rel="stylesheet" href="{% static 'ewaste_management/user_incentive.css' %}">
+{% endif %}
+
+{% endblock %}
+
+{% block content %}
+    {% if user.role == 'admin' %}
+    <div class="main-content">
+      <div class="incentives-content">
+        <h1>Incentive Management</h1>
+        <form action="{% url 'ewaste_management:incentives' %}" method="post">
+        {% csrf_token %}
+        <div class="search-bar">
+            <input type="text" name="search" placeholder="Search incentives...">
+        </div>
+    </form>
+
+        <div class="incentive-container">
+        {% for incentive in incentives %}
+            <!-- Sample Incentive Items -->
+            <div class="incentive-item" onclick="window.location.href=`{% url 'ewaste_management:edit_incentive' incentive.id%}`">
+                <!-- <button class="delete-btn" onclick="window.location.href=`{% url 'ewaste_management:delete_incentive' incentive.id%}`">×</button> -->
+                <div class="incentive-content">
+                    <div class="incentive-name">{{incentive.name}}</div>
+                    <div class="incentive-points">{{incentive.description}}</div>
+                    <div class="incentive-points">{{incentive.points_required}}</div>
+                </div>
+            </div>
+        {% endfor %}
+            
+            <!-- Add New Item -->
+            <div class="incentive-item add-item" onclick="window.location.href=`{% url 'ewaste_management:add_incentive' %}`">
+                <div class="add-item-content">+</div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+{% elif user.role == 'university_community' or user.role == 'campus_expert' %}
+<!-- Main Content -->
+<div class="main-content">
+    <div class="points-display-container">
+      <h1>Rewards Center</h1>
+      <div id="pointsDisplay">{{user.point_earned}}</div>
+    </div>
+    
+    <div id="itemMenu">
+      {% for incentive in incentives %}
+        <!-- Sample Incentive Items -->
+        <div class="item">
+            <!-- <img src="https://via.placeholder.com/150" alt="Gift Card" class="item-image"> Placeholder image, replace with actual image URL -->
+        <h3>{{incentive.name}}</h3>
+        <p>{{incentive.description}}</p>
+        <p class="points-cost">Cost: {{incentive.points_required}}</p>
+        <form action="{% url 'ewaste_management:redeem_incentive' incentive.id %}" method="post">
+        {% csrf_token %}
+        {% if incentive.points_required >= user.point_earned %}
+            <button onclick="" disabled="">
+                Not Enough Points
+            </button>
+            {% else %}
+            <button type="submit">
+                Exchange Points
+              </button>
+        {% endif %}
+        </form>
+        
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+{%endif %}
+{% endblock %}
+    
+
