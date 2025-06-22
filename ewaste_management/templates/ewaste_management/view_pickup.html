@@ -1,0 +1,125 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+    <style>
+        .header {
+             background-color: #2e7d32;
+             color: white;
+             padding: 15px 20px;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             position: relative;
+         }
+  
+         .menu-btn {
+             background: none;
+             border: none;
+             color: white;
+             font-size: 24px;
+             cursor: pointer;
+             padding: 5px;
+         }
+         
+         .sidebar {
+             position: fixed;
+             top: 0;
+             left: -250px;
+             width: 250px;
+             height: 100%;
+             background-color: white;
+             box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+             transition: left 0.3s ease;
+             z-index: 100;
+             padding-top: 60px;
+         }
+         
+         .sidebar.active {
+             left: 0;
+         }
+         
+         .sidebar-menu {
+             list-style: none;
+             display: flex;
+             flex-direction: column;
+         
+          }
+         .sidebar-menu li {
+             padding: 15px 20px;
+             border-bottom: 1px solid #eee;
+         
+          }
+         .sidebar-menu li a {
+             color: #333;
+             text-decoration: none;
+             display: block;
+         
+          }
+         .sidebar-menu li:hover {
+             background-color: #f5f5f5;
+         }
+         
+         .menu-overlay {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0,0,0,0.5);
+             z-index: 99;
+             display: none;
+         }
+         
+         .menu-overlay.active {
+             display: block;
+         }
+         h1.pickup-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+      </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div>
+        <h1 class="pickup-title">Booking's Item</h1>
+    </div>
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+                <!-- Table -->
+                <div class="overflow-x-auto max-h-60">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serail Number</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Appliances' Name</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for item in booking_items %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{item.serial_number}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{item.product_name}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="py-16"></div>
+
+
+{% endblock %}

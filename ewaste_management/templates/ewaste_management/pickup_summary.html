@@ -1,0 +1,358 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .eco-button {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    .eco-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+    .eco-button:active {
+      transform: translateY(2px);
+    }
+    .eco-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .eco-button:hover::before {
+      transform: translateX(100%);
+    }
+    .table-row-hover:hover {
+      background-color: #f9fafb;
+    }
+    @media (max-width: 768px) {
+      .responsive-table thead {
+        display: none;
+      }
+      .responsive-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+      }
+      .responsive-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem;
+        text-align: right;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .responsive-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-align: left;
+      }
+    }
+    .header {
+           background-color: #2e7d32;
+           color: white;
+           padding: 15px 20px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           position: relative;
+       }
+  
+  .menu-btn {
+           background: none;
+           border: none;
+           color: white;
+           font-size: 24px;
+           cursor: pointer;
+           padding: 5px;
+       }
+       
+       .sidebar {
+           position: fixed;
+           top: 0;
+           left: -250px;
+           width: 250px;
+           height: 100%;
+           background-color: white;
+           box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+           transition: left 0.3s ease;
+           z-index: 100;
+           padding-top: 60px;
+       }
+       
+       .sidebar.active {
+           left: 0;
+       }
+       
+       .sidebar-menu {
+           list-style: none;
+           display: flex;
+           flex-direction: column;
+       
+        }
+       .sidebar-menu li {
+           padding: 15px 20px;
+           border-bottom: 1px solid #eee;
+       
+        }
+       .sidebar-menu li a {
+           color: #333;
+           text-decoration: none;
+           display: block;
+       
+        }
+       .sidebar-menu li:hover {
+           background-color: #f5f5f5;
+       }
+       
+       .menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0,0,0,0.5);
+           z-index: 99;
+           display: none;
+       }
+       
+       .menu-overlay.active {
+           display: block;
+       }
+    </style>
+{% endblock %}
+
+{% block content %}    
+
+  <div class="container mx-auto px-4 py-6">
+
+  <div class="container mx-auto p-6 md:p-8 lg:p-10">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Today's Pickup Slots</h2>
+        <div class="flex items-center">
+          <div class="bg-green-500 text-white p-2 rounded-full mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-800" id="currentDate">Loading date...</h3>
+            <p class="text-gray-600">Today's pickup schedule</p>
+          </div>
+        </div>
+        <a href="{% url 'ewaste_management:pickup' %}" class="text-green-600 hover:text-green-800 font-medium">View All</a>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <div class="p-4 border-b">
+            <!-- Filter section -->
+            <h4 class="text-gray-700 font-medium mb-3">Filter by State:</h4>
+            <div>
+              <select id="stateFilter" class="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">All States</option>
+                <option value="Johor">Johor</option>
+                <option value="Kedah">Kedah</option>
+                <option value="Kelantan">Kelantan</option>
+                <option value="Malacca">Malacca (Melaka)</option>
+                <option value="Negeri Sembilan">Negeri Sembilan</option>
+                <option value="Pahang">Pahang</option>
+                <option value="Penang">Penang (Pulau Pinang)</option>
+                <option value="Perak">Perak</option>
+                <option value="Perlis">Perlis</option>
+                <option value="Sabah">Sabah</option>
+                <option value="Sarawak">Sarawak</option>
+                <option value="Selangor">Selangor</option>
+                <option value="Terengganu">Terengganu</option>
+                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                <option value="Putrajaya">Putrajaya</option>
+                <option value="Labuan">Labuan</option>
+              </select>
+            </div>
+          </div>
+    
+          <div class="overflow-y-auto" style="max-height: 400px;">
+            <table class="min-w-full divide-y divide-gray-200 responsive-table">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Street Address</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State/Province</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ZIP/Postal Code</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr class="table-row-hover pickup-slot">
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Customer">
+                    <div class="font-medium text-gray-900">John Doe</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Date">
+                    <div class="font-medium text-gray-900">04/23/2025</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Time">
+                    <div class="text-sm text-gray-500">10:00</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Items">
+                    <div class="text-sm text-gray-500">Computer</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Brand">
+                    <div class="text-sm text-gray-500">Dell</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Street Address">
+                    <div class="text-sm text-gray-500">123 Jalan Bukit</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="City">
+                    <div class="text-sm text-gray-500">Bukit Jalil</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="State/Province">
+                    <div class="text-sm text-gray-500">Kuala Lumpur</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="ZIP/Postal Code">
+                    <div class="text-sm text-gray-500">57000</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Country">
+                    <div class="text-sm text-gray-500">Malaysia</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Driver">
+                    <div class="text-sm text-gray-500">Alex Smith</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Action">
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md text-sm font-medium transition duration-300 complete-btn">Mark as Done</button>
+                  </td>
+                </tr>
+                <tr class="table-row-hover pickup-slot">
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Customer">
+                    <div class="font-medium text-gray-900">Sarah Johnson</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Date">
+                    <div class="font-medium text-gray-900">04/23/2025</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Time">
+                    <div class="text-sm text-gray-500">14:00</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Items">
+                    <div class="text-sm text-gray-500">Old Smartphones</div>
+                    <div class="text-sm text-gray-500">Laptop Batteries</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Brand">
+                    <div class="text-sm text-gray-500">Samsung, HP</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="Street Address">
+                    <div class="text-sm text-gray-500">45 Jalan Sultan Ismail</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="City">
+                    <div class="text-sm text-gray-500">Puchong</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="State/Province">
+                    <div class="text-sm text-gray-500">Kedah</div>
+                  </td>
+                  <td class="px-6 py-4" data-label="ZIP/Postal Code">
+                    <div class="text-sm text-gray-500">50250</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Country">
+                    <div class="text-sm text-gray-500">Malaysia</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Driver">
+                    <div class="text-sm text-gray-500">Maria Rodriguez</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-label="Action">
+                    <button disabled class="bg-gray-300 text-gray-500 py-1 px-3 rounded-md text-sm font-medium cursor-not-allowed">Done</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Spacing -->
+  <div class="py-16"></div>
+{% endblock %}
+
+
+{% block scripts %}
+  <!-- Script to display current date -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set current date
+      const dateElement = document.getElementById('currentDate');
+      const today = new Date();
+      const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+      dateElement.textContent = today.toLocaleDateString('en-US', options);
+  
+      // Mark as Done button functionality
+      const completeButtons = document.querySelectorAll('.complete-btn');
+      completeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const pickupSlot = this.closest('.pickup-slot');
+          const statusBadge = pickupSlot.querySelector('.rounded-full');
+          
+          // Update status badge
+          statusBadge.classList.remove('bg-yellow-100', 'text-yellow-800');
+          statusBadge.classList.add('bg-green-100', 'text-green-800');
+          statusBadge.textContent = 'Completed';
+          
+          // Disable button
+          this.textContent = 'Done';
+          this.disabled = true;
+          this.classList.remove('bg-green-500', 'hover:bg-green-600');
+          this.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+        });
+      });
+  
+      // Filter function
+      const stateFilter = document.getElementById('stateFilter');
+      stateFilter.addEventListener('change', function() {
+        const selectedState = this.value;
+        const pickupSlots = document.querySelectorAll('.pickup-slot');
+  
+        pickupSlots.forEach(slot => {
+          const stateCell = slot.querySelector('td[data-label="State/Province"]');
+          const stateText = stateCell.textContent.trim();
+  
+          if (selectedState === 'all' || stateText === selectedState) {
+            slot.style.display = ''; // Show the row
+          } else {
+            slot.style.display = 'none'; // Hide the row
+          }
+        });
+      });
+    });
+  
+  
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('menuOverlay').classList.toggle('active');
+    }
+  </script>
+{% endblock %}

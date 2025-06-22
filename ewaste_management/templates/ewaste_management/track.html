@@ -1,0 +1,158 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+{% block style %}
+    <style>
+        /* Custom style for the scrollable table */
+        .table-container {
+            max-height: 400px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+   
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .menu-overlay.active {
+            display: block;
+        }
+
+        h1.track-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+{% endblock %}
+{% block content %}      
+
+<div>
+    <h1 class="track-title">Logs</h1>
+</div>
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+                <!-- Scrollable Table -->
+                <div class="table-container">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movement ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Additional Information</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movement Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movement Time</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movement Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receiver</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for component in components %}
+                            {% for movement_record in component.record.all %}
+                            {% if movement_record.supplier.id == user.organization.id or movement_record.recipeint.id == user.organization.id %}
+                            <tr class="hover:bg-gray-50 transition-colors">  
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ movement_record.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ component.component_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    Condition - {{ component.status }} <br>
+                                    From - {{ component.appliance.product_name }} ({{ component.appliance.serial_number }}) <br>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ movement_record.transaction_datetime|date:"Y-m-d" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ movement_record.transaction_datetime|time:"H:i" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">{% if movement_record.supplier.organization_type == 'collection' %} Collection - Processing {%elif movement_record.supplier.organization_type == 'processing' %} Processing - Recycling {% elif supplier.organization_type == 'recycling' %} Recycling - Sales {% endif %}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ movement_record.supplier.organization_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ movement_record.recipeint.organization_name }}</td>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                            </tr>
+                            <!-- Additional rows can go here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center mt-6 my-4 py-2"> 
+                    <a href="{% url 'ewaste_management:add_track' %}"> 
+                    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Check Out
+                        </button>
+                    </a>      
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- Spacing -->
+     <div class="py-16"></div>
+{% endblock %}
+        

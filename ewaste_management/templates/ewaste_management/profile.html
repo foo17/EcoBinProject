@@ -1,0 +1,76 @@
+{% extends 'ewaste_management/layout.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Main content -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="border-b pb-4 mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">Personal Profile</h2>
+                <div>
+                    <a href="{% url 'ewaste_management:edit_profile' %}" class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-colors">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Profile information - View mode -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1">
+                    <div class="flex flex-col items-center">
+                        <div class="w-32 h-32 bg-gray-300 rounded-full mb-4 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">{{ user.username }}</h3>
+                        <p class="text-primary font-medium">{{ user.role }}</p>
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 gap-y-4">
+                        {% if user.role == 'university_community' %}
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">University</div>
+                            <div class="col-span-2 text-gray-800">
+                                {% if user.university %}
+                                    {{ user.university.university_name }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% elif user.role == 'organization_team' %}
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">Organization</div>
+                            <div class="col-span-2 text-gray-800">
+                                {% if user.organization %}
+                                    {{ user.organization.organization_name }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">Email</div>
+                            <div class="col-span-2 text-gray-800">{{ user.email }}</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">Phone</div>
+                            <div class="col-span-2 text-gray-800">{{ user.phone_number|default_if_none:'Not provided' }}</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">Date Created</div>
+                            <div class="col-span-2 text-gray-800">{{ user.created_at|date:"F d, Y" }}</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="font-medium text-gray-700">Role</div>
+                            <div class="col-span-2 text-gray-800">{{ user.role}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{%load static %}
+
+{% block style %}
+    <style>
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+    
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .menu-overlay.active {
+            display: block;
+        }
+        h1.organization-profile-page {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <h1 class="organization-profile-page">{{user.organization.organization_name}} Profile</h1>
+        <div class="max-w-2xl mx-auto mt-8">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="flex flex-col items-center p-6">
+
+                    <div class="w-full max-w-lg space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Name</h2>
+                            <input type="text" id="company" name="organization_name" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company name"/ value="{{ organization.organization_name }}">
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Organization Type</h2>
+                            <input type="text" id="contactPerson" value="{{organization.organization_type}}" name="ContactPerson" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Contact Person"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Location</h2>
+                            <input type="text" id="location" value="{{organization.address}}" name="Location" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company Location"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Additional Information</h2>
+                            <input type="email" value="{{organization.additional_information}}" id="email" name="Email" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company Email"/>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Website</h2>
+                            <input type="tel" id="phone" value="{{organization.website}}" name="PhoneNumber" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Company Phone Number"/>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h2 class="text-lg font-semibold text-gray-700">Created At</h2>
+                            <input type="text" id="createdTime" value="{{organization.created_at}}" name="CreatedTime" readonly class="mt-2 border border-gray-300 rounded p-2 w-full focus:ring focus:ring-green-200 focus:border-green-500 outline-none" placeholder="Created Date"/>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row justify-center mt-6"> 
+                        <a href="{% url 'ewaste_management:edit_org_profile' %}"> 
+                        <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                                Edit Profile
+                            </button>
+                        </a>      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Spacing -->
+    <div class="py-16"></div>
+{% endblock %}

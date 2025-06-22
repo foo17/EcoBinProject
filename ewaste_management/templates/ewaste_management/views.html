@@ -1,0 +1,1484 @@
+<!-- This is the pickup history page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Pickup History</title>
+    <style>
+        .header {
+           background-color: #2e7d32;
+           color: white;
+           padding: 15px 20px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           position: relative;
+       }
+ 
+        .menu-btn {
+           background: none;
+           border: none;
+           color: white;
+           font-size: 24px;
+           cursor: pointer;
+           padding: 5px;
+       }
+       
+       .sidebar {
+           position: fixed;
+           top: 0;
+           left: -250px;
+           width: 250px;
+           height: 100%;
+           background-color: white;
+           box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+           transition: left 0.3s ease;
+           z-index: 100;
+           padding-top: 60px;
+       }
+       
+       .sidebar.active {
+           left: 0;
+       }
+       
+       .sidebar-menu {
+           list-style: none;
+           display: flex;
+           flex-direction: column;
+       
+        }
+       .sidebar-menu li {
+           padding: 15px 20px;
+           border-bottom: 1px solid #eee;
+       
+        }
+       .sidebar-menu li a {
+           color: #333;
+           text-decoration: none;
+           display: block;
+       
+        }
+       .sidebar-menu li:hover {
+           background-color: #f5f5f5;
+       }
+       
+       .menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0,0,0,0.5);
+           z-index: 99;
+           display: none;
+       }
+       
+       .menu-overlay.active {
+           display: block;
+       }
+       
+       /* Add styles for "No results" message */
+       .no-results {
+           display: none;
+           padding: 20px;
+           text-align: center;
+           font-weight: bold;
+           color: #666;
+           width: 100%;
+       }
+       
+       /* Add style for clear filter button */
+       .clear-filter {
+           background-color: #f3f4f6;
+           border: 1px solid #d1d5db;
+           color: #374151;
+           padding: 0.5rem 1rem;
+           border-radius: 0.375rem;
+           font-size: 0.875rem;
+           cursor: pointer;
+           transition: all 0.2s;
+       }
+       
+       .clear-filter:hover {
+           background-color: #e5e7eb;
+       }
+    </style>
+</head>
+<body class="bg-gray-100">
+    
+    <div class="header">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="text-white text-3xl md:text-4xl font-bold">Ecobin</div>
+    </div>
+ 
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+ 
+    <div class="sidebar" id="sidebar">
+        <div class="close-btn" onclick="toggleMenu()">×</div>
+        <ul class="sidebar-menu">
+            <li><a href="Profile_CollectionTeam.html">Profile</a></li>
+            <li><a href="CollectionCenter_Homepage.html">Homepage</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+        <a href="CollectionCenter_Homepage.html" class="text-lg hover:underline text-green-600 flex items-center font-bold mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Homepage
+        </a>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-green-600 p-4 md:p-6 text-center">
+                    <h1 class="text-3xl font-bold text-white">Pickup History</h1>
+                </div>
+                
+                <!--  Filter Section -->
+                <div class="p-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1">
+                            <label for="datePicker" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="date" id="datePickerPickupHistory" name="DatePickerPickupHistory" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5" onchange="filterTableByDate()" />
+                            </div>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="clearFilterBtn" class="clear-filter" onclick="clearFilter()">Clear Filter</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Table -->
+                <div class="overflow-x-auto max-h-60">
+                    <table id="pickupHistoryTable" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Collection ID
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Time
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Username
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Item
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Brand
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Street Address
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                   City
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    State/Province
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ZIP/Postal Code
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Country
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Picker
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    1
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    04/01/2025
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    10:00 
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="font-medium text-green-600">user123</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Item A
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    Iphone
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    123 Main St, Apt 4B
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Puchong
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Selangor
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    10001
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Malaysia
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Complete
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Picker 1
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    2
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    03/28/2025
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    14:00
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="font-medium text-green-600">eco_recycler</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Item B
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    Samsung
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    123 Main St, Apt 4B
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Puchong
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Selangor
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    10001
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Malaysia
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Complete
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Picker 1
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    3
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    03/25/2025
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    9:00
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="font-medium text-green-600">green_planet</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Item C
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    Huawei
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    123 Main St, Apt 4B
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Puchong
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Selangor
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    10001
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Malaysia
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Complete
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    Picker 1
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="noResults" class="no-results">
+                        No pickup records found for the selected date.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Spacing -->
+        <div class="py-16"></div>
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white pt-16 pb-8 px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              <div>
+                <div class="flex items-center text-2xl font-bold text-primary mb-4">
+                  EcoBin
+                </div>
+                <p class="text-gray-400 mb-6">Pioneering sustainable e-waste recycling solutions for a cleaner, greener future.</p>
+                <div class="flex space-x-4">
+                  <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">f</a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">t</a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">in</a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">ig</a>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold text-primary mb-6">Contact Us</h3>
+                <ul class="space-y-3 text-gray-400">
+                  <li>Bukit Jalil, Kuala Lumpur</li>
+                  <li>ecobin@gmail.com</li>
+                  <li>018-123-4567</li>
+                </ul>
+              </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm pt-8 mt-8 border-t border-gray-700">
+              &copy; 2025 EcoBin. All rights reserved.
+            </div>
+        </footer>
+
+        <script>
+            // Function to toggle menu
+            function toggleMenu() {
+                document.getElementById('sidebar').classList.toggle('active');
+                document.getElementById('menuOverlay').classList.toggle('active');
+            }
+            
+            // Function to filter table by date
+            function filterTableByDate() {
+                // Get the date value from the date picker
+                const dateFilter = document.getElementById('datePickerPickupHistory').value;
+                
+                // Get all table rows
+                const table = document.getElementById('pickupHistoryTable');
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                
+                // Variable to track if any rows match the filter
+                let matchFound = false;
+                
+                // Loop through all rows and hide/show based on the date filter
+                for (let i = 0; i < rows.length; i++) {
+                    const dateCell = rows[i].getElementsByTagName('td')[1]; // Date is in the second column (index 1)
+                    
+                    if (dateCell) {
+                        const rowDate = dateCell.textContent.trim();
+                        
+                        // Convert the filter date from YYYY-MM-DD to MM/DD/YYYY for comparison
+                        const parts = dateFilter.split('-');
+                        const formattedDateFilter = parts.length === 3 ? 
+                            `${parts[1]}/${parts[2]}/${parts[0]}` : '';
+                        
+                        // If the date matches the filter or no filter is applied, show the row
+                        if (rowDate === formattedDateFilter || !dateFilter) {
+                            rows[i].style.display = '';
+                            matchFound = true;
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+                
+                // Show or hide the "No results" message
+                const noResults = document.getElementById('noResults');
+                if (!matchFound && dateFilter) {
+                    noResults.style.display = 'block';
+                } else {
+                    noResults.style.display = 'none';
+                }
+            }
+            
+            // Function to clear the filter
+            function clearFilter() {
+                // Clear the date picker value
+                document.getElementById('datePickerPickupHistory').value = '';
+                
+                // Show all rows
+                const table = document.getElementById('pickupHistoryTable');
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                
+                for (let i = 0; i < rows.length; i++) {
+                    rows[i].style.display = '';
+                }
+                
+                // Hide the "No results" message
+                document.getElementById('noResults').style.display = 'none';
+            }
+        </script>
+</body>
+</html>
+
+
+
+<!-- This is the view of all pickup slots when the collection team wants to view what the upcoming pickup -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>View all upcoming Pickup Slot</title>
+    <style>
+       .header {
+           background-color: #2e7d32;
+           color: white;
+           padding: 15px 20px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           position: relative;
+       }
+  
+      .menu-btn {
+           background: none;
+           border: none;
+           color: white;
+           font-size: 24px;
+           cursor: pointer;
+           padding: 5px;
+       }
+       
+       .sidebar {
+           position: fixed;
+           top: 0;
+           left: -250px;
+           width: 250px;
+           height: 100%;
+           background-color: white;
+           box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+           transition: left 0.3s ease;
+           z-index: 100;
+           padding-top: 60px;
+       }
+       
+       .sidebar.active {
+           left: 0;
+       }
+       
+       .sidebar-menu {
+           list-style: none;
+           display: flex;
+           flex-direction: column;
+       
+        }
+       .sidebar-menu li {
+           padding: 15px 20px;
+           border-bottom: 1px solid #eee;
+       
+        }
+       .sidebar-menu li a {
+           color: #333;
+           text-decoration: none;
+           display: block;
+       
+        }
+       .sidebar-menu li:hover {
+           background-color: #f5f5f5;
+       }
+       
+       .menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0,0,0,0.5);
+           z-index: 99;
+           display: none;
+       }
+       
+       .menu-overlay.active {
+           display: block;
+       }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    
+    <div class="header">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="text-white text-3xl md:text-4xl font-bold">Ecobin</div>
+    </div>
+  
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+  
+    <div class="sidebar" id="sidebar">
+        <div class="close-btn" onclick="toggleMenu()">×</div>
+        <ul class="sidebar-menu">
+            <li><a href="Profile_CollectionTeam.html">Profile</a></li>
+            <li><a href="CollectionCenter_Homepage.html">Homepage</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </div>
+
+
+    <div class="container mx-auto px-4 py-6">
+        <a href="Driver_Home.html" class="text-lg hover:underline text-green-600 flex items-center font-bold mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Today"s PickupSlot
+        </a>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-green-600 p-4 md:p-6 text-center">
+                    <h1 class="text-3xl font-bold text-white">View All Pickup Slots</h1>
+                </div>
+                
+                <!-- Filter Section-->
+                <div class="p-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Date Filter -->
+                        <div class="flex-1">
+                            <label for="datePicker" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="date" id="datePickerPickupHistory" name="DatePickerPickupHistory" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5" />
+                            </div>
+                        </div>
+                        
+                        <!-- State Filter -->
+                        <div class="flex-1">
+                            <label for="stateFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by State</label>
+                            <div class="relative">
+                                <select id="stateFilter" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                                    <option value="all">All States</option>
+                                    <option value="Johor">Johor</option>
+                                    <option value="Kedah">Kedah</option>
+                                    <option value="Kelantan">Kelantan</option>
+                                    <option value="Malacca">Malacca (Melaka)</option>
+                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                    <option value="Pahang">Pahang</option>
+                                    <option value="Penang">Penang (Pulau Pinang)</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Perlis">Perlis</option>
+                                    <option value="Sabah">Sabah</option>
+                                    <option value="Sarawak">Sarawak</option>
+                                    <option value="Selangor">Selangor</option>
+                                    <option value="Terengganu">Terengganu</option>
+                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                    <option value="Putrajaya">Putrajaya</option>
+                                    <option value="Labuan">Labuan</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Reset Filter Button -->
+                        <div class="flex-none mt-4 md:mt-0 md:self-end">
+                            <button id="resetFilterBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-medium rounded-lg text-sm px-4 py-2.5 focus:outline-none">
+                                Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Table -->
+                <div class="overflow-x-auto" style="max-height: 500px;">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Collection ID
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider date-column">
+                                    Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Time
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Username
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Item
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Brand
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Street Address
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                   City
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider state-column">
+                                    State/Province
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ZIP/Postal Code
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Country
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Picker
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="pickupTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Updated sample data with MM/DD/YYYY format -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/01/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10:00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="font-medium text-green-600">user123</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item A</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Samsung</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">123 Main St, Apt 4B</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Puchong</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Selangor</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Malaysia</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Pending</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Picker 1</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/02/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">14:30</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="font-medium text-green-600">eco_user</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item B</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Apple</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">45 Green Ave</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Penang</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Penang</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">11600</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Malaysia</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Pending</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Picker 2</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/03/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">09:15</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="font-medium text-green-600">green_tech</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item C</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">HP</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">78 Tech Lane</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Kuala Lumpur</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Kuala Lumpur</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50088</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Malaysia</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Pending</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Picker 1</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/01/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">16:45</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="font-medium text-green-600">earth_saver</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item D</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Lenovo</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">210 Palm Street</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Johor Bahru</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Johor</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">80100</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Malaysia</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Pending</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Picker 3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- No Results Message -->
+                <div id="noResultsMessage" class="hidden py-8 text-center text-gray-500">
+                    No pickup slots match your filter criteria.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="py-16"></div>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-16 pb-8 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div>
+                <div class="flex items-center text-2xl font-bold text-primary mb-4">
+                    EcoBin
+                </div>
+                <p class="text-gray-400 mb-6">Pioneering sustainable e-waste recycling solutions for a cleaner, greener future.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">f</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">t</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">in</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">ig</a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-primary mb-6">Contact Us</h3>
+                <ul class="space-y-3 text-gray-400">
+                    <li>Bukit Jalil, Kuala Lumpur</li>
+                    <li>ecobin@gmail.com</li>
+                    <li>018-123-4567</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 text-sm pt-8 mt-8 border-t border-gray-700">
+            &copy; 2025 EcoBin. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Function to toggle menu
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+        
+        // Function to format date from YYYY-MM-DD to MM/DD/YYYY
+        function formatDateToMMDDYYYY(dateString) {
+            if (!dateString) return '';
+            
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
+            
+            return `${parts[1]}/${parts[2]}/${parts[0]}`;
+        }
+        
+        // Function to format date from MM/DD/YYYY to YYYY-MM-DD for comparison
+        function formatDateToYYYYMMDD(dateString) {
+            if (!dateString) return '';
+            
+            const parts = dateString.split('/');
+            if (parts.length !== 3) return dateString;
+            
+            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
+        
+        // Wait for DOM to load before attaching event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store all table rows for filtering
+            const allRows = Array.from(document.querySelectorAll('#pickupTableBody tr'));
+            const dateFilter = document.getElementById('datePickerPickupHistory');
+            const stateFilter = document.getElementById('stateFilter');
+            const resetFilterBtn = document.getElementById('resetFilterBtn');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            
+            // Function to filter table based on selected date and state
+            function filterTable() {
+                const selectedDate = dateFilter.value; // This will be in YYYY-MM-DD format from the date input
+                const selectedState = stateFilter.value;
+                
+                let visibleRows = 0;
+                
+                allRows.forEach(row => {
+                    // Get the date and state from the row
+                    const rowDateMMDDYYYY = row.querySelector('td:nth-child(2)').textContent.trim(); // MM/DD/YYYY
+                    const rowDateYYYYMMDD = formatDateToYYYYMMDD(rowDateMMDDYYYY); // Convert to YYYY-MM-DD for comparison
+                    const rowState = row.querySelector('td:nth-child(9)').textContent.trim();
+                    
+                    // Check if the row matches both filters
+                    const dateMatch = !selectedDate || rowDateYYYYMMDD === selectedDate;
+                    const stateMatch = selectedState === 'all' || rowState === selectedState;
+                    
+                    // Show or hide the row based on filters
+                    if (dateMatch && stateMatch) {
+                        row.classList.remove('hidden');
+                        visibleRows++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+                
+                // Show or hide the "No Results" message
+                if (visibleRows === 0) {
+                    noResultsMessage.classList.remove('hidden');
+                } else {
+                    noResultsMessage.classList.add('hidden');
+                }
+            }
+            
+            // Function to reset all filters
+            function resetFilters() {
+                dateFilter.value = '';
+                stateFilter.value = 'all';
+                
+                // Show all rows
+                allRows.forEach(row => {
+                    row.classList.remove('hidden');
+                });
+                
+                // Hide "No Results" message
+                noResultsMessage.classList.add('hidden');
+            }
+            
+            // Add event listeners to filters
+            dateFilter.addEventListener('change', filterTable);
+            stateFilter.addEventListener('change', filterTable);
+            resetFilterBtn.addEventListener('click', resetFilters);
+        });
+    </script>
+</body>
+</html>
+
+<!-- This is the view Component hirtory record -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Component History</title>
+    <style>
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        .menu-overlay.active {
+            display: block;
+        }
+        /* Add styles for "No results" message */
+        .no-results {
+            display: none;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            width: 100%;
+        }
+        
+        /* Add style for clear filter button */
+        .clear-filter {
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .clear-filter:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="header">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="text-white text-3xl md:text-4xl font-bold">Ecobin</div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="close-btn" onclick="toggleMenu()">×</div>
+        <ul class="sidebar-menu">
+            <li><a href="Profile_ProcessTeam.html">Profile</a></li>
+            <li><a href="ProcessCenter_Hompage.html">Hompage</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </div>
+    
+    <div class="container mx-auto px-4 py-6">
+        <a href="ProcessCenter_Hompage.html" class="text-lg hover:underline text-green-600 flex items-center font-bold mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Homepage
+        </a>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-green-600 p-4 md:p-6 text-center">
+                    <h1 class="text-3xl font-bold text-white">E-waste Component History</h1>
+                </div>
+
+                <!--  Filter Section -->
+                <div class="p-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1">
+                            <label for="datePicker" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="date" id="datePickerComponentHistory" name="DatePickerComponentHistory" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5" onchange="filterTableByDate()" />
+                            </div>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="clearFilterBtn" class="clear-filter" onclick="clearFilter()">Clear Filter</button>
+                        </div>
+                    </div>
+                </div>
+ 
+                <!-- Table -->
+                <div class="overflow-x-auto max-h-70">
+                    <table id="componentHistoryTable" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waste Collection ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial Number</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Picker</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Component</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight(Kg)</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            </tr>
+                        </thead>
+                        <!-- The style how will it looks like -->
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4/17/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item A</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SR1000</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Samsung</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Picker1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">Screen, Battery</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">4.5</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">LCD display with minor scratches, lithium-ion battery in good condition</td>
+                            </tr>
+                            <!-- Adding more sample data for testing filter functionality -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4/15/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item B</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SR1001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Apple</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Picker2</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">CPU, RAM</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">2.3</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">A12 chip with good performance, 4GB RAM module</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4/10/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Item C</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SR1002</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Huawei</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Picker1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">Camera, Speaker</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-500">1.8</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">48MP camera module, dual speakers in working condition</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="noResults" class="no-results">
+                        No component records found for the selected date.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Spacing -->
+    <div class="py-16"></div>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-16 pb-8 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div>
+                <div class="flex items-center text-2xl font-bold text-primary mb-4">
+                    EcoBin
+                </div>
+                <p class="text-gray-400 mb-6">Pioneering sustainable e-waste recycling solutions for a cleaner, greener future.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">f</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">t</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">in</a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">ig</a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-primary mb-6">Contact Us</h3>
+                <ul class="space-y-3 text-gray-400">
+                    <li>Bukit Jalil, Kuala Lumpur</li>
+                    <li>ecobin@gmail.com</li>
+                    <li>018-123-4567</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 text-sm pt-8 mt-8 border-t border-gray-700">
+            &copy; 2025 EcoBin. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        // Function to filter table by date
+        function filterTableByDate() {
+            // Get the date value from the date picker
+            const dateFilter = document.getElementById('datePickerComponentHistory').value;
+            
+            // Format the selected date to match the format in the table (M/D/YYYY)
+            let formattedDate = '';
+            if (dateFilter) {
+                const dateObj = new Date(dateFilter);
+                formattedDate = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + dateObj.getFullYear();
+            }
+            
+            // Get all table rows
+            const table = document.getElementById('componentHistoryTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            // Variable to track if any rows match the filter
+            let matchFound = false;
+            
+            // Loop through all rows and hide/show based on the date filter
+            for (let i = 0; i < rows.length; i++) {
+                const dateCell = rows[i].getElementsByTagName('td')[2]; // Date is in the third column (index 2)
+                
+                if (dateCell) {
+                    const rowDate = dateCell.textContent.trim();
+                    
+                    // If the date matches the filter or no filter is applied, show the row
+                    if (formattedDate === '' || rowDate === formattedDate) {
+                        rows[i].style.display = '';
+                        matchFound = true;
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+            
+            // Show or hide the "No results" message
+            const noResults = document.getElementById('noResults');
+            if (!matchFound && dateFilter) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+        
+        // Function to clear the filter
+        function clearFilter() {
+            // Clear the date picker value
+            document.getElementById('datePickerComponentHistory').value = '';
+            
+            // Show all rows
+            const table = document.getElementById('componentHistoryTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+            
+            // Hide the "No results" message
+            document.getElementById('noResults').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+
+
+<!-- This is the view Transaction history record -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Transaction History</title>
+    <style>
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+    
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .menu-overlay.active {
+            display: block;
+        }
+        
+        /* Add styles for "No results" message */
+        .no-results {
+            display: none;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            width: 100%;
+        }
+        
+        /* Add style for clear filter button */
+        .clear-filter {
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .clear-filter:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+    </head>
+    <body class="bg-gray-100">
+    <div class="header">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="text-white text-3xl md:text-4xl font-bold">Ecobin</div>
+    </div>
+    
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="close-btn" onclick="toggleMenu()">×</div>
+        <ul class="sidebar-menu">
+            <li><a href="Profile_RecycleTeam.html">Profile</a></li>
+            <li><a href="RecycleCenter_Homepage.html">Homepage</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </div>
+
+    
+    <div class="container mx-auto px-4 py-6">
+        <a href="RecycleCenter_Homepage.html" class="text-lg hover:underline text-green-600 flex items-center font-bold mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Homepage
+        </a>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-green-600 p-4 md:p-6 text-center">
+                    <h1 class="text-3xl font-bold text-white">Transaction History</h1>
+                </div>
+
+                 <!--  Filter Section -->
+                 <div class="p-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1">
+                            <label for="datePicker" class="block text-sm font-medium text-gray-700 mb-1">Filter by Transaction Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="date" id="datePickerTransactionHistory" name="datePickerTransactionHistory" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5" onchange="filterTableByDate()" />
+                            </div>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="clearFilterBtn" class="clear-filter" onclick="clearFilter()">Clear Filter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Table -->
+                <div class="overflow-x-auto max-h-60">
+                    <div class="min-w-full max-h-96 overflow-y-auto">
+                        <table id="transactionHistoryTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created at</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RecycleTeam1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/10/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/10/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">New Company</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">Silver (2.7kg), Aluminum (5.0kg)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">300</td>
+                                </tr>
+                                <!-- Added more sample transactions -->
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RecycleTeam2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/05/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">04/05/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">GreenTech</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">Gold (0.5kg), Copper (3.2kg)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">750</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RecycleTeam1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">03/28/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">03/28/2025</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">EcoSolutions</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500 font-bold">Plastic (10.5kg), Glass (8.3kg)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">185</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div id="noResults" class="no-results">
+                            No transaction records found for the selected date.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            <!-- Spacing -->
+            <div class="py-16"></div>
+            <!-- Footer -->
+            <footer class="bg-gray-800 text-white pt-16 pb-8 px-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <div>
+                        <div class="flex items-center text-2xl font-bold text-primary mb-4">
+                            EcoBin
+                        </div>
+                        <p class="text-gray-400 mb-6">Pioneering sustainable e-waste recycling solutions for a cleaner, greener future.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">f</a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">t</a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">in</a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center hover:bg-primary transition-colors">ig</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-6">Contact Us</h3>
+                        <ul class="space-y-3 text-gray-400">
+                            <li>Bukit Jalil, Kuala Lumpur</li>
+                            <li>ecobin@gmail.com</li>
+                            <li>018-123-4567</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center text-gray-400 text-sm pt-8 mt-8 border-t border-gray-700">
+                    &copy; 2025 EcoBin. All rights reserved.
+                </div>
+            </footer>
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+        
+        // Function to filter table by date
+        function filterTableByDate() {
+            // Get the date value from the date picker
+            const dateFilter = document.getElementById('datePickerTransactionHistory').value;
+            
+            // Get all table rows
+            const table = document.getElementById('transactionHistoryTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            // Variable to track if any rows match the filter
+            let matchFound = false;
+            
+            // Loop through all rows and hide/show based on the date filter
+            for (let i = 0; i < rows.length; i++) {
+                const dateCell = rows[i].getElementsByTagName('td')[2]; // Transaction Date is in the third column (index 2)
+                
+                if (dateCell) {
+                    const rowDate = dateCell.textContent.trim();
+                    
+                    // Convert the filter date from YYYY-MM-DD to MM/DD/YYYY for comparison
+                    const parts = dateFilter.split('-');
+                    const formattedDateFilter = parts.length === 3 ? 
+                        `${parts[1]}/${parts[2]}/${parts[0]}` : '';
+                    
+                    // If the date matches the filter or no filter is applied, show the row
+                    if (rowDate === formattedDateFilter || !dateFilter) {
+                        rows[i].style.display = '';
+                        matchFound = true;
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+            
+            // Show or hide the "No results" message
+            const noResults = document.getElementById('noResults');
+            if (!matchFound && dateFilter) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+        
+        // Function to clear the filter
+        function clearFilter() {
+            // Clear the date picker value
+            document.getElementById('datePickerTransactionHistory').value = '';
+            
+            // Show all rows
+            const table = document.getElementById('transactionHistoryTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+            
+            // Hide the "No results" message
+            document.getElementById('noResults').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

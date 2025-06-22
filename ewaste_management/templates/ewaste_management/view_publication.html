@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}EcoBin - Publications{% endblock %}
+
+{% block content %}
+</header>
+    <header class="bg-primary text-white p-4 text-center">
+      <h1 class="text-2xl font-bold">EcoBin Publications</h1>
+      <p class="mt-1">Stay informed about our recycling publications</p>
+    </header>
+  
+  <div class="max-w-7xl mx-auto p-4">
+    <div id="message-box" class="hidden py-2 px-4 mb-4 text-white rounded"></div>
+    
+    <div class="mb-4 bg-light p-4 rounded-lg">
+      <h2 class="text-xl font-bold text-dark m-0">Publication Directory</h2>
+    </div>
+    
+    <div class="flex items-center mb-4">
+      <label for="filter-date" class="mr-2">Filter by date:</label>
+      <select id="filter-date" class="border rounded p-2">
+        <option value="all">All Publications</option>
+        <option value="upcoming">Upcoming Publications</option>
+        <option value="past">Past Publications</option>
+      </select>
+    </div>
+    
+    <div id="publications-container" class="space-y-4">
+      <!-- Publications will be displayed here -->
+      {% if publications %}
+        {% for publication in publications %}
+          <div class="bg-white rounded-lg shadow p-4 relative">
+            <h2 class="text-lg font-bold text-primary mt-0">{{ publication.title }}</h2>
+            <p class="text-accent font-bold">{{ publication.publication_date|date:"l, F d, Y" }}</p>
+            <p class="mt-2"><strong>Location:</strong> {{ publication.publication_location }}</p>
+            <p class="mt-2">{{ publication.publication_detail }}</p>
+            {% if publication.publication_date < today %}
+              <p class="mt-2 italic text-gray-600">This publication has already been released.</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-center py-4">No publications found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Filter functionality for client-side filtering
+    const filterDate = document.getElementById("filter-date");
+    
+    filterDate.addEventListener("change", function() {
+        const filterValue = this.value;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const publicationElements = document.querySelectorAll('#publications-container > div');
+        
+        publicationElements.forEach(elem => {
+            const dateText = elem.querySelector('.text-accent').textContent;
+            const publicationDate = new Date(dateText);
+            
+            if (filterValue === 'all') {
+                elem.style.display = 'block';
+            } else if (filterValue === 'upcoming' && publicationDate >= today) {
+                elem.style.display = 'block';
+            } else if (filterValue === 'past' && publicationDate < today) {
+                elem.style.display = 'block';
+            } else {
+                elem.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

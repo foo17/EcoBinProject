@@ -1,0 +1,664 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{%load static %}
+
+{% block style %}
+    <title>Book Pickup Slot</title>
+    <style>
+        .header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+   
+   .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 100;
+            padding-top: 60px;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        
+         }
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        
+         }
+        .sidebar-menu li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+        
+         }
+        .sidebar-menu li:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .menu-overlay.active {
+            display: block;
+        }
+
+     </style>
+<style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .eco-button {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    .eco-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+    .eco-button:active {
+      transform: translateY(2px);
+    }
+    .eco-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .eco-button:hover::before {
+      transform: translateX(100%);
+    }
+    .table-row-hover:hover {
+      background-color: #f9fafb;
+    }
+    @media (max-width: 768px) {
+      .responsive-table thead {
+        display: none;
+      }
+      .responsive-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+      }
+      .responsive-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem;
+        text-align: right;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .responsive-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-align: left;
+      }
+    }
+    .header {
+      background-color: #2e7d32;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+  
+    .menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px;
+    }
+       
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: white;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+      transition: left 0.3s ease;
+      z-index: 100;
+      padding-top: 60px;
+    }
+       
+    .sidebar.active {
+      left: 0;
+    }
+       
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-menu li {
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .sidebar-menu li a {
+      color: #333;
+      text-decoration: none;
+      display: block;
+    }
+    
+    .sidebar-menu li:hover {
+      background-color: #f5f5f5;
+    }
+       
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 99;
+      display: none;
+    }
+       
+    .menu-overlay.active {
+      display: block;
+    }
+    
+    h1.book-pick-up-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+     
+    <div class="container mx-auto px-4 py-6">
+
+        <h1 class="book-pick-up-title">Book Pickup Slot</h1>
+
+        <!-- The Form Design -->
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+                
+                
+                <form class="p-6" id="pickupForm" action="{% url 'ewaste_management:book_pickup' %}" method="post">
+                    {% csrf_token %}
+                    <div class="space-y-6">
+                        <input type="hidden" name="pickup_id" id="pickup_id" value="{{ pickup.id }}">
+                        
+                        <!-- Location fields - expanded -->
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h3 class="block text-lg font-medium text-gray-700 mb-3">Pickup Location</h3>
+                            
+                            <div>
+                                <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Preferrable Time</label>
+                                <input type="time" id="time" name="time" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm" placeholder="123 Main St, Apt 4B" />
+                            </div>
+                            
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                                    <input type="text" id="street" name="street" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm" placeholder="123 Main St, Apt 4B" />
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                        <input type="text" id="city" name="city" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm" placeholder="New York" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                                        <select id="state" name="state" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm">
+                                            <option value="" disabled selected>Select state</option>
+                                            <option value="Johor">Johor</option>
+                                            <option value="Kedah">Kedah</option>
+                                            <option value="Kelantan">Kelantan</option>
+                                            <option value="Malacca">Malacca (Melaka)</option>
+                                            <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                            <option value="Pahang">Pahang</option>
+                                            <option value="Penang">Penang (Pulau Pinang)</option>
+                                            <option value="Perak">Perak</option>
+                                            <option value="Perlis">Perlis</option>
+                                            <option value="Sabah">Sabah</option>
+                                            <option value="Sarawak">Sarawak</option>
+                                            <option value="Selangor">Selangor</option>
+                                            <option value="Terengganu">Terengganu</option>
+                                            <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                            <option value="Putrajaya">Putrajaya</option>
+                                            <option value="Labuan">Labuan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="zip" class="block text-sm font-medium text-gray-700 mb-1">ZIP/Postal Code</label>
+                                        <input type="text" id="zip" name="zip" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm" placeholder="10001" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                        <input type="text" id="country" name="country" value="Malaysia" readonly class="mt-2 border border-gray-300 rounded p-2 w-full bg-gray-200 cursor-not-allowed" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border-2 border-green-500 shadow-md">
+                            <div>
+                                <h3 class="font-semibold mb-2">Items</h3>
+                                <div id="campus-experts-container" class="space-y-4">
+                                  <div class="campus-expert-item bg-gray-100 p-3 rounded relative">
+                                    <button type="button" class="remove-expert absolute top-2 right-2 text-red-500 hover:text-red-700">×</button>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <label class="block text-sm font-medium mb-1" required>Name:</label>
+                                        <input type="text" name="item[]" class="w-full border rounded p-1" required>
+                                      </div>
+                                      <div>
+                                        <label class="block text-sm font-medium mb-1" required>Serial Number:</label>
+                                        <input type="text" name="serial_number[]" class="w-full border rounded p-1" required>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <button type="button" id="add-expert-btn" class="mt-2 bg-accent text-white py-1 px-3 rounded font-semibold hover:bg-blue-600 transition-colors">Add Appliance</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Added helpful information section -->
+                        <div class="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-blue-800">Note:</h3>
+                                    <p class="mt-1 text-sm text-blue-600">Please fill in all required fields. You can add multiple items for pickup, and edit or delete them as needed before submitting the form.</p>
+                                </div>
+                            </div>
+                        </div>
+                       
+
+                        <div class="flex flex-col md:flex-row justify-center mt-6">  
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                Book Pickup
+                            </button>
+                            <button type="button" id="cancelButton" class="bg-gray-300 hover:bg-red-600 hover:text-white text-gray-800 font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300 md:ml-4 mt-4 md:mt-0" onclick="window.location.href=`{% url 'ewaste_management:pickup' %}`;"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>                            
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="container mx-auto px-4 py-6">
+        <a href="User_Homepage.html" class="text-lg hover:underline text-green-600 flex items-center font-bold mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Homepage
+        </a>
+    
+        <div class="container mx-auto p-6 md:p-8 lg:p-10">
+          <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-gray-800">Today's Pickup Slots</h2>
+              <div class="flex items-center">
+                <div class="bg-green-500 text-white p-2 rounded-full mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-800" id="currentDate">Loading date...</h3>
+                  <p class="text-gray-600">Today's pickup schedule</p>
+                </div>
+              </div>
+              <a href="ViewAll_UserPickups.Html" class="text-green-600 hover:text-green-800 font-medium">View All</a>
+            </div>
+    
+            Pickup Status Legend
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Pickup Slot Statuses</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-100 rounded-md flex items-center">
+                  <div class="bg-yellow-500 text-white p-2 rounded-full mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <strong>Pending:</strong> The pickup request has been made and is awaiting to be picked up.
+                  </div>
+                </div>
+                <div class="p-4 bg-gray-100 rounded-md flex items-center">
+                  <div class="bg-green-500 text-white p-2 rounded-full mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <strong>Completed:</strong> The pickup has been successfully completed.
+                  </div>
+                </div>
+              </div>
+            </div>
+    
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div class="overflow-x-auto">
+                <div class="p-4 border-b">
+                  Filter section
+                  <h4 class="text-gray-700 font-medium mb-3">Filter by Status:</h4>
+                  <div>
+                    <select id="statusFilter" class="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                      <option value="All">All</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Complete">Complete</option>      
+                    </select>
+                  </div>
+                </div>
+    
+                <div class="overflow-y-auto" style="max-height: 400px;">
+                  <table class="min-w-full divide-y divide-gray-200 responsive-table">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Street Address</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State/Province</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ZIP/Postal Code</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr class="table-row-hover pickup-slot">
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Customer">
+                          <div class="font-medium text-gray-900">John Doe</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Time">
+                          <div class="text-sm text-gray-500">10:00</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Items">
+                          <div class="text-sm text-gray-500">Computer</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Brand">
+                          <div class="text-sm text-gray-500">Dell</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Street Address">
+                          <div class="text-sm text-gray-500">123 Jalan Bukit</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="City">
+                          <div class="text-sm text-gray-500">Bukit Jalil</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="State/Province">
+                          <div class="text-sm text-gray-500">Kuala Lumpur</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="ZIP/Postal Code">
+                          <div class="text-sm text-gray-500">57000</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Country">
+                          <div class="text-sm text-gray-500">Malaysia</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Driver">
+                          <div class="text-sm text-gray-500">Alex Smith</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Action">
+                          <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm font-medium transition duration-300">Cancel</button>
+                        </td>
+                      </tr>
+                      <tr class="table-row-hover pickup-slot">
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Customer">
+                          <div class="font-medium text-gray-900">Sarah Johnson</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Time">
+                          <div class="text-sm text-gray-500">14:00</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Items">
+                          <div class="text-sm text-gray-500">Old Smartphones</div>
+                          <div class="text-sm text-gray-500">Laptop Batteries</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Brand">
+                          <div class="text-sm text-gray-500">Samsung, HP</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="Street Address">
+                          <div class="text-sm text-gray-500">45 Jalan Sultan Ismail</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="City">
+                          <div class="text-sm text-gray-500">Kuala Lumpur</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="State/Province">
+                          <div class="text-sm text-gray-500">Kuala Lumpur</div>
+                        </td>
+                        <td class="px-6 py-4" data-label="ZIP/Postal Code">
+                          <div class="text-sm text-gray-500">50250</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Country">
+                          <div class="text-sm text-gray-500">Malaysia</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Driver">
+                          <div class="text-sm text-gray-500">Maria Rodriguez</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap" data-label="Action">
+                          <button disabled class="bg-gray-300 text-gray-500 py-1 px-3 rounded-md text-sm font-medium cursor-not-allowed">Done</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      Spacing
+      <div class="py-16"></div> -->
+
+   <!-- Spacing -->
+  <div class="py-16"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Component Management
+      const addExpertBtn = document.getElementById('add-expert-btn');
+      const campusExpertsContainer = document.getElementById('campus-experts-container');
+      
+      // Template for a new component in form
+      const createCampusExpertTemplate = () => {
+        const expertItem = document.createElement('div');
+        expertItem.className = 'campus-expert-item bg-gray-100 p-3 rounded relative';
+        expertItem.innerHTML = `
+            <button type="button" class="remove-expert absolute top-2 right-2 text-red-500 hover:text-red-700">×</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                <label class="block text-sm font-medium mb-1">Name:</label>
+                <input type="text" name="item[]" class="w-full border rounded p-1" required>
+                </div>
+                <div>
+                <label class="block text-sm font-medium mb-1">Status:</label>
+                <input type="text" name="serial_number[]" class="w-full border rounded p-1" required>
+                </div>
+            </div>
+        `;
+        return expertItem;
+      };
+      
+      // Add event listeners for remove buttons
+      const addRemoveExpertListeners = () => {
+        document.querySelectorAll('.remove-expert').forEach(button => {
+          button.addEventListener('click', function() {
+            this.closest('.campus-expert-item').remove();
+          });
+        });
+      };
+      
+      // Initialize remove listeners
+      addRemoveExpertListeners();
+      
+      // Add new component
+      addExpertBtn.addEventListener('click', () => {
+        const newExpertItem = createCampusExpertTemplate();
+        campusExpertsContainer.appendChild(newExpertItem);
+        addRemoveExpertListeners();
+      });
+
+    // Toggle visibility of the company text field based on organization selection
+    document.querySelector('select[name="recipient"]').addEventListener('change', function() {
+        const companyField = document.querySelector('input[name="recipeint_company"]').closest('div');
+        if (this.value) {
+            companyField.style.display = 'none';
+        } else {
+            companyField.style.display = 'block';
+        }
+    });
+
+    // Initialize visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const organizationSelect = document.querySelector('select[name="recipient"]');
+        const companyField = document.querySelector('input[name="recipeint_company"]').closest('div');
+        if (organizationSelect.value) {
+            companyField.style.display = 'none';
+        } else {
+            companyField.style.display = 'block';
+        }
+    });
+</script>
+
+
+
+  <!-- Script to display current date and handle filtering -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set current date
+      const dateElement = document.getElementById('currentDate');
+      const today = new Date();
+      
+      // Format the date to MM/DD/YYYY
+      const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
+      dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+      // Filter functionality
+      const statusFilter = document.getElementById('statusFilter');
+      statusFilter.addEventListener('change', filterPickupSlots);
+
+      // Initial filtering (optional - sets the initial view)
+      filterPickupSlots();
+
+      function filterPickupSlots() {
+        const selectedStatus = statusFilter.value;
+        const pickupSlots = document.querySelectorAll('.pickup-slot');
+        
+        pickupSlots.forEach(slot => {
+          const statusCell = slot.querySelector('[data-label="Status"] span');
+          const statusText = statusCell.textContent.trim();
+          
+          // Check if the status matches the filter or if "All" is selected
+          if (selectedStatus === 'All') {
+            slot.style.display = '';
+          } else if (selectedStatus === 'Pending' && statusText.includes('Pending')) {
+            slot.style.display = '';
+          } else if (selectedStatus === 'Complete' && statusText.includes('Completed')) {
+            slot.style.display = '';
+          } else {
+            slot.style.display = 'none';
+          }
+        });
+      }
+
+      // Cancel pickup button functionality
+      const cancelButtons = document.querySelectorAll('button:not([disabled])');
+      cancelButtons.forEach(button => {
+        if (button.textContent.trim() === 'Cancel') {
+          button.addEventListener('click', function() {
+            const confirmation = confirm("Are you sure you want to cancel this pickup?");
+            if (confirmation) {
+              const pickupSlot = this.closest('.pickup-slot');
+              pickupSlot.remove();
+              
+              // Re-apply filter after removal
+              filterPickupSlots();
+            }
+          });
+        }
+      });
+    });
+
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('menuOverlay').classList.toggle('active');
+    }
+  </script>
+{% endblock %}

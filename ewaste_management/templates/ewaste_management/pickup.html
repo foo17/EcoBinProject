@@ -1,0 +1,392 @@
+{% extends 'ewaste_management/layout.html' %}
+
+{% load static %}
+
+{% block style %}
+    <style>
+        .header {
+             background-color: #2e7d32;
+             color: white;
+             padding: 15px 20px;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             position: relative;
+         }
+  
+         .menu-btn {
+             background: none;
+             border: none;
+             color: white;
+             font-size: 24px;
+             cursor: pointer;
+             padding: 5px;
+         }
+         
+         .sidebar {
+             position: fixed;
+             top: 0;
+             left: -250px;
+             width: 250px;
+             height: 100%;
+             background-color: white;
+             box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+             transition: left 0.3s ease;
+             z-index: 100;
+             padding-top: 60px;
+         }
+         
+         .sidebar.active {
+             left: 0;
+         }
+         
+         .sidebar-menu {
+             list-style: none;
+             display: flex;
+             flex-direction: column;
+         
+          }
+         .sidebar-menu li {
+             padding: 15px 20px;
+             border-bottom: 1px solid #eee;
+         
+          }
+         .sidebar-menu li a {
+             color: #333;
+             text-decoration: none;
+             display: block;
+         
+          }
+         .sidebar-menu li:hover {
+             background-color: #f5f5f5;
+         }
+         
+         .menu-overlay {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0,0,0,0.5);
+             z-index: 99;
+             display: none;
+         }
+         
+         .menu-overlay.active {
+             display: block;
+         }
+         h1.pickup-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(46 204 113 / var(--tw-text-opacity, 1));
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-bar {
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+        
+        .search-bar input:focus {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+        
+        .search-bar::before {
+            content: '🔍';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+        
+        .search-bar input::placeholder {
+            color: #94a3b8;
+        }
+        
+        /* Adding a subtle hover effect */
+        .search-bar input:hover {
+            border-color: #cbd5e1;
+        }
+        .search-bar input::placeholder {
+            color: #94a3b8;
+        }
+        
+        /* Adding a subtle hover effect */
+        .search-bar input:hover {
+            border-color: #cbd5e1;
+        }
+        
+        /* Date Selection Styles */
+        .date-selection {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .date-selection select {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #4a5568;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .date-selection select:hover {
+            border-color: #cbd5e1;
+        }
+        
+        .date-selection select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+        
+        .date-selection select option {
+            padding: 0.5rem;
+        }
+
+        /* Navigation Button Styles */
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin: 1.5rem 0;
+        }
+        
+        .nav-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.2);
+        }
+        
+        .nav-button:hover {
+            background-color: #2980b9;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .nav-button:active {
+            transform: translateY(0);
+        }
+        
+        .nav-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+
+      </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+
+    <div>
+        <h1 class="pickup-title">Filter Options</h1>
+    </div>
+
+    <form action="{% url 'ewaste_management:search_pickup' %}" method="post">
+        {% csrf_token %}
+        <div class="search-bar">
+            <input type="text" name="search" placeholder="Search location...">
+        </div>
+    </form>
+
+    <h2>Date Selection</h2>
+    <div class="date-selection">
+      <select id="monthSelect">
+        <option value="">Select Month</option>
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+
+      <select id="yearSelect">
+        <option value="">Select Year</option>
+      </select>
+    </div>
+
+    <div>
+        <h1 class="pickup-title">Pickup Slots Management</h1>
+    </div>
+
+    <div class="nav-buttons">
+        <a href="{% url 'ewaste_management:my_appointments' %}" class="nav-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            My Appointments
+        </a>
+    </div>
+
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+                <!-- Table -->
+                <div class="overflow-x-auto max-h-60">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pickup ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection Time</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for pickup in pickups %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{pickup.id}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{pickup.collection_date_time|date:'Y-m-d'}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{pickup.collection_date_time|time:'H:i'}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{pickup.location}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm {% if pickup.status == 'available' %}text-green-500 {% elif pickup.status == 'edited' %} text-blue-500 {% else %} text-red-500 {% endif %}font-bold">{{pickup.status}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        {% if user.role == 'organization_team' %}
+                                        <a href="{% url 'ewaste_management:edit_pickup' pickup.id %}">
+                                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center transition duration-300" >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                                Edit
+                                            </button>
+                                        </a>
+                                        <button onclick="window.location.href=`{% url 'ewaste_management:delete_pickup' pickup.id %}`" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center transition duration-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                        {% elif pickup.status == 'available' or pickup.status == 'edited'  %}
+                                        <a href="{% url 'ewaste_management:pickup_detail' pickup.id %}">
+                                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center transition duration-300" >
+                                                Book
+                                            </button>
+                                        </a>
+                                        {% endif %}
+                                        
+
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if user.role == 'organization_team' %}
+                <div class="flex flex-col md:flex-row justify-center mt-6 my-4 py-2"> 
+                    <a href="{% url 'ewaste_management:schedule_pickup' %}"> 
+                    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center shadow-lg w-full md:w-56 transition duration-300"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add
+                        </button>
+                    </a>      
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="py-16"></div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const monthSelect = document.getElementById('monthSelect');
+        const yearSelect = document.getElementById('yearSelect');
+
+        // Populate year dropdown with the last 10 years and next 10 years
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear - 10; year <= currentYear + 10; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        // Filter table rows based on selected month and year
+        function filterTable() {
+            const selectedMonth = monthSelect.value;
+            const selectedYear = yearSelect.value;
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const dateCell = row.querySelector('td:nth-child(2)');
+                if (dateCell) {
+                    const date = new Date(dateCell.textContent.trim());
+                    const matchesMonth = selectedMonth ? date.getMonth() + 1 == selectedMonth : true;
+                    const matchesYear = selectedYear ? date.getFullYear() == selectedYear : true;
+
+                    if (matchesMonth && matchesYear) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        monthSelect.addEventListener('change', filterTable);
+        yearSelect.addEventListener('change', filterTable);
+    });
+</script>
+{% endblock %}
